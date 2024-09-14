@@ -1,0 +1,1 @@
+print exec("echo 'cat'")
