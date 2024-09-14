@@ -1,5 +1,5 @@
 # Kaolin.Flow (WIP)
-[Work on Progress]
+MiniScript's Runtime, just like Node to JavaScript :).
 
 # Why?
 Focusing solely on adding new features to make the language production-ready without having to dirt the main repository + making everything be built on MiniScript!
@@ -25,7 +25,6 @@ imported = import("<ms file>", 1)
 
 return "Exported"
 ```
-Will be adding import 
 
 ## REPL
 Just run the program without any argument.
