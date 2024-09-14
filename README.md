@@ -7,12 +7,12 @@ Focusing solely on adding new features to make the language production-ready wit
 # How to Use
 1. Make sure to clone all the submodules.
 2. Run using `dotnet run --property WarningLevel=0 <file.ms>`!
-3. ???
+3. ???<br />
 You may run the program like how you run your script with MiniScript commandline version.
 
 # Features
 ## MiniScript's Commandline Intrinsics
-Please refer to [this doc](https://miniscript.org/cmdline/)
+Please refer to [this doc](https://miniscript.org/cmdline/)<br />
 Work on Progress: `file`
 
 ## New Module
