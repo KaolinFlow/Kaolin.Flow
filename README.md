@@ -21,7 +21,14 @@ import "test"
 
 print test
 
-imported = import("<ms file>", 1)
+imported = import("test2")
+
+print imported
+print test2
+
+imported_but_no_auto_variable = import("test3", false)
+
+print imported_but_no_auto_variable
 
 return "Exported"
 ```
