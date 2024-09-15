@@ -64,7 +64,7 @@ eval "return 0"
 Just run the program without any argument.
 
 ## HTTP
-`data` is always a list of bytes (array of integer) and `headers` is always a map with key and value of strings. Import `http` for using these:
+`data` is always a list of bytes (array of integer) or a string and `headers` is always a map with key and value of strings. Import `http` for using these:
 | http    | arg1 | arg2    | arg3    |   |
 |---------|------|---------|---------|---|
 | get(    | url  | headers |         | ) |
