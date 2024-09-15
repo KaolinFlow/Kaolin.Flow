@@ -5,8 +5,14 @@ using Miniscript;
 namespace Kaolin.Flow.Plugins
 {
 
-    public class Module(Engine engine) : Base(engine)
+    public class Module : Base
     {
+        public Module(Engine engine) : base(engine)
+        {
+            client.DefaultRequestHeaders.Add("Cache-Control", "max-age=0");
+        }
+
+        readonly HttpClient client = new();
         public static void Print(string s, bool lineBreak = true)
         {
             if (lineBreak) Console.WriteLine(s);
@@ -78,8 +84,6 @@ namespace Kaolin.Flow.Plugins
                     }
                     else
                     {
-                        HttpClient client = new();
-                        client.DefaultRequestHeaders.Add("Cache-Control", "max-age=0");
 
                         fileContent = client.GetStringAsync(fullPath).GetAwaiter().GetResult();
                     }

@@ -11,6 +11,15 @@ namespace Kaolin.Flow.Plugins
         public override void Inject()
         {
             ValMap map = new MapBuilder()
+                .AddProp("bytesToString",
+                    new FunctionBuilder()
+                        .AddParam("bytes")
+                        .SetCallback((context, p) =>
+                        {
+                            return new Intrinsic.Result(System.Text.Encoding.UTF8.GetString(Http.UnWrapData((ValList)context.GetLocal("bytes"))));
+                        })
+                        .Function
+                )
                 .AddProp("eval",
                     new FunctionBuilder()
                         .AddParam("code")

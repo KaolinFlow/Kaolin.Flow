@@ -64,9 +64,16 @@ eval "return 0"
 ## REPL
 Just run the program without any argument.
 
-## Native Code Import (Work on Progress)
+## HTTP
+`data` is always a list of bytes (array of integer) and `headers` is always a map with key and value of strings.
+| http    | arg1 | arg2    | arg3    |   |
+|---------|------|---------|---------|---|
+| get(    | url  | headers |         | ) |
+| delete( | url  | headers |         | ) |
+| post(   | url  | data    | headers | ) |
+| put(    | url  | data    | headers | ) |
 
-## HTTP (Work on Progress)
+## Native Code Import (Work on Progress)
 
 ## WebSocket (Work on Progress)
 

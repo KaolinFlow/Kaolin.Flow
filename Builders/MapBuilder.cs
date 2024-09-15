@@ -24,5 +24,11 @@ namespace Kaolin.Flow.Builders
 
             return this;
         }
+        public MapBuilder AddProp(Value key, Value value)
+        {
+            map.SetElem(key, value);
+
+            return this;
+        }
     }
 }
