@@ -14,7 +14,7 @@ namespace Kaolin.Flow.Plugins
         }
 
         readonly HttpClient client = new();
-        readonly Dictionary<string, Value> getMemo = [];
+        readonly Dictionary<string, Value> memo = [];
         public static Dictionary<string, string> UnWrapHeaders(ValMap headersMap)
         {
             Dictionary<string, string> headers = [];
@@ -100,11 +100,11 @@ namespace Kaolin.Flow.Plugins
                     if (p != null)
                     {
                         string key = ((ValString)p.result).value;
-                        bool ok = getMemo.TryGetValue(key, out Value val);
+                        bool ok = memo.TryGetValue(key, out Value val);
 
                         if (!ok) return new Intrinsic.Result(p.result, false);
 
-                        getMemo.Remove(key);
+                        memo.Remove(key);
 
                         return new Intrinsic.Result(val!, true);
                     }
@@ -128,7 +128,7 @@ namespace Kaolin.Flow.Plugins
                         .Unwrap()
                         .ContinueWith((t) =>
                         {
-                            getMemo.Add(s, t.Result);
+                            memo.Add(s, t.Result);
                         });
 
                     return new Intrinsic.Result(new ValString(s), false);
@@ -145,11 +145,11 @@ namespace Kaolin.Flow.Plugins
                     if (p != null)
                     {
                         string key = ((ValString)p.result).value;
-                        bool ok = getMemo.TryGetValue(key, out Value val);
+                        bool ok = memo.TryGetValue(key, out Value val);
 
                         if (!ok) return new Intrinsic.Result(p.result, false);
 
-                        getMemo.Remove(key);
+                        memo.Remove(key);
 
                         return new Intrinsic.Result(val!, true);
                     }
@@ -170,7 +170,7 @@ namespace Kaolin.Flow.Plugins
                         .ContinueWith((t) =>
                         {
                             Console.WriteLine(t.Result);
-                            getMemo.Add(s, t.Result);
+                            memo.Add(s, t.Result);
                         });
 
                     return new Intrinsic.Result(new ValString(s), false);
