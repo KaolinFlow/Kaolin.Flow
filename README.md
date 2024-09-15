@@ -15,7 +15,7 @@ You may run the program like how you run your script with MiniScript commandline
 Please refer to [this doc](https://miniscript.org/cmdline/)<br />
 Work on Progress: `file`
 
-## New Module
+## New Module && HTTP Import
 ```
 import "test"
 
@@ -30,13 +30,20 @@ imported_but_no_auto_variable = import("test3", false)
 
 print imported_but_no_auto_variable
 
+import "http://localhost/from_http"
+
+print from_http
+
 return "Exported"
+```
+
+## Eval
+```
+eval "return 0"
 ```
 
 ## REPL
 Just run the program without any argument.
-
-## HTTP Import (Work on Progress)
 
 ## Import Map (Work on Progress)
 

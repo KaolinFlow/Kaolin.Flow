@@ -1,4 +1,4 @@
-import("./import/b")
+import "./import/b"
 
 print "Executed from: " + path + " received " + b
 

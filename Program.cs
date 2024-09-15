@@ -13,7 +13,7 @@ class Program(Interpreter interpreter, string path, bool isDebugging) : Runtime(
 			{
 				var file = args.Length < 3 || string.IsNullOrEmpty(args[2]) ? "../../../TestSuite.txt" : args[2];
 				Print("Running test suite.\n");
-				RunTestSuite(file);
+				RunTestSuite(Path.GetFullPath(file));
 				return;
 			}
 
@@ -31,7 +31,7 @@ class Program(Interpreter interpreter, string path, bool isDebugging) : Runtime(
 				Print("Running quick test.\n");
 				var stopwatch = new System.Diagnostics.Stopwatch();
 				stopwatch.Start();
-				RunFile(quickTestFilePath, true);
+				RunFile(Path.GetFullPath(quickTestFilePath), true);
 				stopwatch.Stop();
 				Print($"Run time: {stopwatch.Elapsed.TotalSeconds} sec");
 			}
@@ -44,7 +44,7 @@ class Program(Interpreter interpreter, string path, bool isDebugging) : Runtime(
 
 		if (args.Length > 0)
 		{
-			RunFile(args[0]);
+			RunFile(Path.GetFullPath(args[0]));
 			return;
 		}
 
@@ -52,7 +52,7 @@ class Program(Interpreter interpreter, string path, bool isDebugging) : Runtime(
 
 		repl.Compile();
 
-		Runtime runtime = new(repl, "./", false);
+		Runtime runtime = new(repl, Path.GetFullPath("./"), false);
 
 		repl.implicitOutput = repl.standardOutput;
 
