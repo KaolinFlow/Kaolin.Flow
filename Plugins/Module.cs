@@ -1,4 +1,6 @@
+using System.IO.Enumeration;
 using System.Net;
+using System.Text.RegularExpressions;
 using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
 using Miniscript;
@@ -27,22 +29,17 @@ namespace Kaolin.Flow.Plugins
                 {
                     string importPath = context.GetLocalString("path");
                     Uri fullPath;
-                    bool isLocal;
 
-                    if (IsHTTP(importPath))
+                    string? matched = MatchPattern(importPath);
+
+                    if (matched != null)
                     {
-                        fullPath = new Uri(importPath);
-                        isLocal = false;
-                    }
-                    else if (IsHTTP(path))
-                    {
-                        fullPath = new Uri(new Uri(path), importPath);
-                        isLocal = false;
+                        string path = ((ValString)engine.interpreter.GetGlobalValue("path")).value;
+                        fullPath = ResolvePath(new Uri(new Uri(path), "./").AbsoluteUri, matched + ".ms");
                     }
                     else
                     {
-                        fullPath = new Uri(Path.Combine(new Uri(path).LocalPath, importPath));
-                        isLocal = true;
+                        fullPath = ResolvePath(path, importPath + ".ms");
                     }
 
                     bool isAuto = context.GetLocalBool("auto");
@@ -52,7 +49,7 @@ namespace Kaolin.Flow.Plugins
 
                         if (isAuto)
                         {
-                            string name = Path.GetFileName(fullPath.AbsolutePath);
+                            string name = Path.GetFileName(importPath);
 
                             TAC.Context callerContext = context.parent;
                             callerContext.SetVar(name, val);
@@ -64,18 +61,17 @@ namespace Kaolin.Flow.Plugins
                     Parser parser = new();
                     string fileContent;
 
-                    if (isLocal)
+                    if (!IsHTTP(fullPath.AbsoluteUri))
                     {
-                        StreamReader file = new(fullPath.AbsolutePath + ".ms");
+                        StreamReader file = new(fullPath.AbsolutePath);
                         fileContent = file.ReadToEnd();
                     }
                     else
                     {
                         HttpClient client = new();
-                        Uri uri = new(fullPath + ".ms");
                         client.DefaultRequestHeaders.Add("Cache-Control", "max-age=0");
 
-                        fileContent = client.GetStringAsync(uri).GetAwaiter().GetResult();
+                        fileContent = client.GetStringAsync(fullPath).GetAwaiter().GetResult();
                     }
 
                     string dirPath = new Uri(fullPath, "./").AbsoluteUri;
@@ -114,12 +110,45 @@ namespace Kaolin.Flow.Plugins
             return new Uri(s).AbsoluteUri;
         }
 
+        public static Uri ResolvePath(string basePath, string relativePath)
+        {
+            if (IsHTTP(relativePath))
+            {
+                return new Uri(relativePath);
+            }
+            else if (IsHTTP(basePath))
+            {
+                return new Uri(new Uri(basePath), relativePath);
+            }
+            else
+            {
+                return new Uri(Path.Combine(new Uri(basePath).AbsolutePath, relativePath));
+            }
+        }
+
+        public string? MatchPattern(string s)
+        {
+            ValMap map = (ValMap)engine.interpreter.GetGlobalValue("imports");
+
+            foreach (var entry in map.map)
+            {
+                var key = ((ValString)entry.Key).value;
+                var val = ((ValString)entry.Value).value;
+
+
+                if (key == s) return val;
+            }
+
+            return null;
+        }
+
         public override void Inject()
         {
             ValFunction factory = CreateImportFunctionFactory();
             Uri uri = new(engine.path);
 
             engine.interpreter.SetGlobalValue("createImport", factory);
+            engine.interpreter.SetGlobalValue("imports", new ValMap());
             engine.Eval("globals.import = createImport(\"" + ToUriString(Path.GetDirectoryName(uri.LocalPath)!) + "\")\nglobals.path = \"" + uri.AbsolutePath + "\"");
 
             engine.Eval("(version)[\"kaolin.flow\"] = \"1.0.0\"");

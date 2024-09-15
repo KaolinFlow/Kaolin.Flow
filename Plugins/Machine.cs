@@ -6,8 +6,6 @@ using Miniscript;
 
 namespace Kaolin.Flow.Plugins
 {
-
-
     public class Machine(Engine engine) : Base(engine)
     {
         readonly Dictionary<string, Value> evalMemo = [];
