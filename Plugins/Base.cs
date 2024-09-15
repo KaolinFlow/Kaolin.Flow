@@ -14,6 +14,10 @@ namespace Kaolin.Flow.Plugins
 
             Inject();
         }
+        public void Register(string key, Value value)
+        {
+            engine.interpreter.GetGlobalValue("imports").SetElem(new ValString(key), value);
+        }
 
         public abstract void Inject();
     }

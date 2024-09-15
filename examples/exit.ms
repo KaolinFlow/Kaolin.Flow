@@ -1,2 +1,4 @@
-exit 0
+import "machine"
+
+machine.exit 0
 print "IMPLAUSIBLE"

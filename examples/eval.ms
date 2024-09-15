@@ -1,1 +1,3 @@
-print eval("return 0")
+import "dev"
+
+print dev.eval("return 0")

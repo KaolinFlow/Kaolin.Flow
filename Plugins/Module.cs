@@ -1,6 +1,3 @@
-using System.IO.Enumeration;
-using System.Net;
-using System.Text.RegularExpressions;
 using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
 using Miniscript;
@@ -30,10 +27,24 @@ namespace Kaolin.Flow.Plugins
                     string importPath = context.GetLocalString("path");
                     Uri fullPath;
 
-                    string? matched = MatchPattern(importPath);
+                    Value? matched = MatchPattern(importPath);
+                    bool isAuto = context.GetLocalBool("auto");
 
                     if (matched != null)
                     {
+                        if (matched.GetType() != typeof(ValString))
+                        {
+                            if (isAuto)
+                            {
+                                string name = Path.GetFileName(importPath);
+
+                                TAC.Context callerContext = context.parent;
+                                callerContext.SetVar(name, matched);
+                            }
+
+                            return new Intrinsic.Result(matched);
+                        }
+
                         string path = ((ValString)engine.interpreter.GetGlobalValue("path")).value;
                         fullPath = ResolvePath(new Uri(new Uri(path), "./").AbsoluteUri, matched + ".ms");
                     }
@@ -42,7 +53,6 @@ namespace Kaolin.Flow.Plugins
                         fullPath = ResolvePath(path, importPath + ".ms");
                     }
 
-                    bool isAuto = context.GetLocalBool("auto");
                     if (p != null)
                     {
                         if (val == null) return new Intrinsic.Result(ValNull.instance, false);
@@ -126,17 +136,19 @@ namespace Kaolin.Flow.Plugins
             }
         }
 
-        public string? MatchPattern(string s)
+        public Value? MatchPattern(string s)
         {
             ValMap map = (ValMap)engine.interpreter.GetGlobalValue("imports");
 
             foreach (var entry in map.map)
             {
                 var key = ((ValString)entry.Key).value;
-                var val = ((ValString)entry.Value).value;
 
 
-                if (key == s) return val;
+
+
+                if (key == s) return entry.Value;
+
             }
 
             return null;

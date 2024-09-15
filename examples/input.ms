@@ -1,1 +1,3 @@
-print input("Say: ")
+import "machine"
+
+print machine.input("Say: ")

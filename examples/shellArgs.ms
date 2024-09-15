@@ -1,1 +1,3 @@
-print shellArgs
+import "machine"
+
+print machine.shellArgs

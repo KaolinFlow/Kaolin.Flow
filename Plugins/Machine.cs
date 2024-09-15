@@ -8,7 +8,6 @@ namespace Kaolin.Flow.Plugins
 {
     public class Machine(Engine engine) : Base(engine)
     {
-        readonly Dictionary<string, Value> evalMemo = [];
         public override void Inject()
         {
             ValMap env = new()
@@ -39,76 +38,69 @@ namespace Kaolin.Flow.Plugins
                 shellArgs.values.Add(Utils.Cast(s));
             }
 
-            engine.interpreter.SetGlobalValue("env", env);
-            engine.interpreter.SetGlobalValue("shellArgs", shellArgs);
-            engine.interpreter.SetGlobalValue("eval", new FunctionBuilder().AddParam("code").SetCallback((context, p) =>
-            {
-                string s = Guid.NewGuid().ToString();
+            ValMap map = new MapBuilder()
+                .AddProp("env", env)
+                .AddProp("shellArgs", shellArgs)
 
-                if (p != null)
-                {
-                    string key = ((ValString)p.result).value;
-                    bool ok = evalMemo.TryGetValue(key, out Value val);
+                .AddProp("exit",
+                    new FunctionBuilder()
+                        .AddParam("resultCode", new ValNumber(0))
+                        .SetCallback((context, p) =>
+                        {
+                            Environment.Exit(context.GetLocalInt("resultCode"));
 
-                    if (!ok) return new Intrinsic.Result(p.result, false);
+                            return Intrinsic.Result.Null;
+                        })
+                        .Function
+                )
+                .AddProp("input",
+                    new FunctionBuilder()
+                        .AddParam("prompt", new ValString(""))
+                        .SetCallback((context, p) =>
+                        {
+                            string s = context.GetLocalString("prompt");
+                            if (s.Length != 0) Engine.Print(s, false);
+                            string v = Console.ReadLine()!;
 
-                    evalMemo.Remove(key);
+                            return new Intrinsic.Result(v);
+                        })
+                        .Function
+                )
+                .AddProp("exec",
+                    new FunctionBuilder()
+                        .AddParam("cmd")
+                        .AddParam("timeout", new ValNumber(30))
+                        .SetCallback((context, p) =>
+                        {
+                            string s = context.GetLocalString("cmd");
+                            int t = context.GetLocalInt("timeout");
 
-                    return new Intrinsic.Result(val!, true);
-                }
+                            List<string> args = [.. s.Split(" ")];
+                            string name = args[0];
 
-                engine.EvalValue(context.GetLocalString("code"))
-                    .ContinueWith((t) =>
-                    {
-                        evalMemo.Add(s, t.Result);
-                    });
+                            args.RemoveAt(0);
 
-                return new Intrinsic.Result(new ValString(s), false);
-            }).Function);
-            engine.interpreter.SetGlobalValue("exit", new FunctionBuilder().AddParam("resultCode", new ValNumber(0)).SetCallback((context, p) =>
-            {
-                Environment.Exit(context.GetLocalInt("resultCode"));
+                            Process process = Process.Start(name, string.Join(" ", args));
 
-                return Intrinsic.Result.Null;
-            }).Function);
-            engine.interpreter.SetGlobalValue("input", new FunctionBuilder().AddParam("prompt", new ValString("")).SetCallback((context, p) =>
-            {
-                string s = context.GetLocalString("prompt");
-                if (s.Length != 0) Engine.Print(s, false);
-                string v = Console.ReadLine()!;
+                            process.StartInfo.UseShellExecute = true;
+                            process.StartInfo.RedirectStandardError = true;
+                            process.StartInfo.UseShellExecute = false;
+                            process.Start();
 
-                return new Intrinsic.Result(v);
-            }).Function);
-            engine.interpreter.SetGlobalValue("exec", new FunctionBuilder()
-                .AddParam("cmd")
-                .AddParam("timeout", new ValNumber(30))
-                .SetCallback((context, p) =>
-                {
-                    string s = context.GetLocalString("cmd");
-                    int t = context.GetLocalInt("timeout");
+                            Task.Delay(t * 1000).ContinueWith((t) =>
+                            {
+                                process.Close();
+                            });
 
-                    List<string> args = [.. s.Split(" ")];
-                    string name = args[0];
+                            process.WaitForExit();
 
-                    args.RemoveAt(0);
+                            return new Intrinsic.Result(new MapBuilder().AddProp("errors", Utils.Cast(process.StandardError.ReadToEnd())).AddProp("status", Utils.Cast(process.ExitCode)).AddProp("output", Utils.Cast(process.StandardOutput.ReadToEnd())).map);
+                        })
+                        .Function
+                )
+                .map;
 
-                    Process process = Process.Start(name, string.Join(" ", args));
-
-                    process.StartInfo.UseShellExecute = true;
-                    process.StartInfo.RedirectStandardError = true;
-                    process.StartInfo.UseShellExecute = false;
-                    process.Start();
-
-                    Task.Delay(t * 1000).ContinueWith((t) =>
-                    {
-                        process.Close();
-                    });
-
-                    process.WaitForExit();
-
-                    return new Intrinsic.Result(new MapBuilder().AddProp("errors", Utils.Cast(process.StandardError.ReadToEnd())).AddProp("status", Utils.Cast(process.ExitCode)).AddProp("output", Utils.Cast(process.StandardOutput.ReadToEnd())).map);
-                }).Function
-            );
+            Register("machine", map);
         }
     }
 }
