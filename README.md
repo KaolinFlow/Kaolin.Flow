@@ -15,7 +15,7 @@ You may run the program like how you run your script with MiniScript commandline
 Please refer to [this doc](https://miniscript.org/cmdline/)<br />
 Work on Progress: `file`
 
-## New Module && HTTP Import
+## New Module && HTTP Import && Import Map
 ```
 import "test"
 
@@ -34,6 +34,12 @@ import "http://localhost/from_http"
 
 print from_http
 
+imports["./e"] = "./f" //will only match the exact string! (please contribute to make it better)
+
+import "e"
+
+print e
+
 return "Exported"
 ```
 
@@ -44,8 +50,6 @@ eval "return 0"
 
 ## REPL
 Just run the program without any argument.
-
-## Import Map (Work on Progress)
 
 ## Native Code Import (Work on Progress)
 
