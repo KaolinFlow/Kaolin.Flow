@@ -162,13 +162,11 @@ namespace Kaolin.Flow.Plugins
                     client.SendAsync(requestMessage)
                         .ContinueWith((t) =>
                         {
-                            Console.WriteLine(t.Result);
                             return WrapResponse(t.Result);
                         })
                         .Unwrap()
                         .ContinueWith((t) =>
                         {
-                            Console.WriteLine(t.Result);
                             memo.Add(s, t.Result);
                         });
 
