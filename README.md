@@ -29,8 +29,6 @@ imported_but_no_auto_variable = import("test3", false)
 
 print imported_but_no_auto_variable
 
-print e
-
 return "Exported"
 ```
 
