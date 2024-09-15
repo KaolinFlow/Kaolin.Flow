@@ -1,4 +1,5 @@
 using Kaolin.Flow.Builders;
+using Kaolin.Flow.Plugins;
 using Miniscript;
 
 namespace Kaolin.Flow.Core
@@ -7,7 +8,38 @@ namespace Kaolin.Flow.Core
     {
         public readonly Interpreter interpreter = interpreter;
         public readonly bool isDebugging = isDebugging;
-        public readonly string path = path;
+        public string path = path;
+        public string UnWrapFilePath(string s)
+        {
+            if (s.StartsWith("file://")) return new Uri(s).AbsolutePath;
+
+            return ResolvePath(new Uri(new Uri(path), "./").AbsolutePath, s).AbsolutePath;
+        }
+
+        public static bool IsHTTP(string s)
+        {
+            return s.StartsWith("https://") || s.StartsWith("http://");
+        }
+        public static Uri ResolvePath(string basePath, string relativePath)
+        {
+            if (IsHTTP(relativePath))
+            {
+                return new Uri(relativePath);
+            }
+            else if (IsHTTP(basePath))
+            {
+                return new Uri(new Uri(basePath), relativePath);
+            }
+            else
+            {
+                return new Uri(Path.Combine(new Uri(basePath).AbsolutePath, relativePath));
+            }
+        }
+
+        public static string WrapFilePath(string s)
+        {
+            return "file:/" + s;
+        }
 
         public void REPL(string sourceLine, double timeLimit = 60)
         {
@@ -195,6 +227,14 @@ namespace Kaolin.Flow.Core
             }).Function, null!);
 
             return tcs.Task;
+        }
+
+        public static ValMap New(ValMap Class)
+        {
+            ValMap newMap = new();
+            newMap.SetElem(ValString.magicIsA, Class);
+
+            return newMap;
         }
 
         public void Eval(string s)

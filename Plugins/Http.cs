@@ -78,7 +78,7 @@ namespace Kaolin.Flow.Plugins
                 .AddProp("status", Utils.Cast(res.StatusCode.ToString()))
                 .AddProp("uri", Utils.Cast(res.RequestMessage!.RequestUri!.AbsolutePath))
                 .AddProp("toString",
-                    new FunctionBuilder()
+                    new FunctionBuilder("toString")
                         .SetCallback((context, p) =>
                         {
                             return new Intrinsic.Result(System.Text.Encoding.UTF8.GetString(bytes));
@@ -112,8 +112,7 @@ namespace Kaolin.Flow.Plugins
                     string s = Guid.NewGuid().ToString();
                     Dictionary<string, string> headers = UnWrapHeaders((ValMap)context.GetLocal("headers"));
 
-                    var requestMessage =
-    new HttpRequestMessage(method, context.GetLocalString("url"));
+                    var requestMessage = new HttpRequestMessage(method, context.GetLocalString("url"));
 
                     Value data = context.GetLocal("data");
 

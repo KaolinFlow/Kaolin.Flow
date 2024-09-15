@@ -13,7 +13,6 @@ You may run the program like how you run your script with MiniScript commandline
 # Features
 ## MiniScript's Commandline Intrinsics
 You may import `machine` and `dev`! Please refer to [this doc](https://miniscript.org/cmdline/) as an extra guideline.<br />
-Work on Progress: `file`
 
 ## New Module
 ```
@@ -73,11 +72,25 @@ Just run the program without any argument.
 | post(   | url  | data    | headers | ) |
 | put(    | url  | data    | headers | ) |
 
-## Native Code Import (Work on Progress)
+## Native Code Import (WIP)
+```
+import "native"
+
+symbols = {}
+symbols["Add"] = {}
+symbols["Add"]["Do"] = {}
+symbols["Add"]["Do"]["argsLength"] = 2
+
+dll = native.import("./native.dll", symbols)
+
+print dll
+print dll.symbols.Add.Do(1, 2)
+```
+
+## Native GUI (Work on Progress)
 
 ## WebSocket (Work on Progress)
 
-## Native GUI (Work on Progress)
 
 # Sponsor
 [PayPalmeplsIndonesianGovermentSucksALot](https://paypal.me/nekomaru76)

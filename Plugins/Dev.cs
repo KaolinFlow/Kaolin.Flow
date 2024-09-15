@@ -12,7 +12,7 @@ namespace Kaolin.Flow.Plugins
         {
             ValMap map = new MapBuilder()
                 .AddProp("bytesToString",
-                    new FunctionBuilder()
+                    new FunctionBuilder("bytesToString")
                         .AddParam("bytes")
                         .SetCallback((context, p) =>
                         {
@@ -21,7 +21,7 @@ namespace Kaolin.Flow.Plugins
                         .Function
                 )
                 .AddProp("eval",
-                    new FunctionBuilder()
+                    new FunctionBuilder("eval")
                         .AddParam("code")
                         .SetCallback((context, p) =>
                         {

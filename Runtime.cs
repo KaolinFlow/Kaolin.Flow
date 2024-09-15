@@ -18,6 +18,7 @@ namespace Kaolin.Flow
             new Plugins.Machine(this).Inject();
             new Plugins.Dev(this).Inject();
             new Plugins.Http(this).Inject();
+            new Plugins.Native(this).Inject();
         }
 
     }

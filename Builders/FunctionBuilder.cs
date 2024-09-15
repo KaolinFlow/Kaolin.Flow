@@ -26,6 +26,34 @@ namespace Kaolin.Flow.Builders
             return this;
         }
 
+        public FunctionBuilder AddParam(string name, string defaultValue)
+        {
+            intrinsic.AddParam(name, Utils.Cast(defaultValue));
+
+            return this;
+        }
+
+        public FunctionBuilder AddParam(string name, int defaultValue)
+        {
+            intrinsic.AddParam(name, Utils.Cast(defaultValue));
+
+            return this;
+        }
+
+        public FunctionBuilder AddParam(string name, float defaultValue)
+        {
+            intrinsic.AddParam(name, Utils.Cast(defaultValue));
+
+            return this;
+        }
+
+        public FunctionBuilder AddParam(string name, bool defaultValue)
+        {
+            intrinsic.AddParam(name, Utils.Cast(defaultValue));
+
+            return this;
+        }
+
         public FunctionBuilder SetCallback(IntrinsicCode code)
         {
             intrinsic.code = code;

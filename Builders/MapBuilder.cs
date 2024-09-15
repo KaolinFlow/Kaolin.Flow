@@ -6,12 +6,19 @@ namespace Kaolin.Flow.Builders
     {
         public readonly ValMap map = map ?? new ValMap();
 
+        public MapBuilder SetUserData(object userData)
+        {
+            map.userData = userData;
+
+            return this;
+        }
         public MapBuilder AddProp(string key, Value value)
         {
             map.SetElem(new ValString(key), value);
 
             return this;
         }
+
         public MapBuilder AddProp(int key, Value value)
         {
             map.SetElem(new ValNumber(key), value);
