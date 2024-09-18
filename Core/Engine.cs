@@ -218,7 +218,7 @@ namespace Kaolin.Flow.Core
                     Value value = context.GetTemp(0);
                     tcs.SetResult(value);
 
-                    return Intrinsic.Result.Null;
+                    return new Intrinsic.Result(value);
                 }
 
                 interpreter.vm.ManuallyPushCall(function, new ValTemp(0), [.. arguments]);

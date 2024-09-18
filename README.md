@@ -41,11 +41,16 @@ print from_http
 
 ## Import Map
 ```
-imports["./e"] = "./f" //will only match the exact string! (please contribute to make it better)
+//will only match the exact string! (please contribute to make it better)
+imports["./e"] = function(path)
+    return import("./f")
+end function 
 
 import "e"
 
-imports["./f"] = "Hello!"
+imports["./f"] = function()
+    return "Hello!"
+end function
 
 import "f"
 

@@ -11,6 +11,10 @@
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute> 
     <StartupObject>Program</StartupObject>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="org.miniscript.MiniScript" Version="1.6.2" />
+  </ItemGroup>
   
 
 </Project>

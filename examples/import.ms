@@ -1,4 +1,6 @@
-imports["./e"] = "./import/import/d"
+imports["./e"] = function()
+    return import("./import/import/d")
+end function
 
 imported = import("./import/a")
 

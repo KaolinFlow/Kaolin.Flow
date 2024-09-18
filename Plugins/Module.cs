@@ -21,6 +21,7 @@ namespace Kaolin.Flow.Plugins
         public ValFunction CreateImportFunction(string path)
         {
             Value val = null!;
+            Value matchedObject = null!;
             ValFunction f = new FunctionBuilder("createImport")
                 .AddParam("path")
                 .AddParam("auto", new ValNumber(1))
@@ -28,73 +29,99 @@ namespace Kaolin.Flow.Plugins
                 {
                     string importPath = context.GetLocalString("path");
                     Uri fullPath;
-
-                    Value? matched = MatchPattern(importPath);
                     bool isAuto = context.GetLocalBool("auto");
 
-                    if (matched != null)
+                    if (p != null)
                     {
-                        if (matched.GetType() != typeof(ValString))
+                        ValMap o = (ValMap)p.result;
+                        o.TryGetValue("isProcessing", out Value t1);
+                        bool isProcessing = ((ValNumber)t1).value == 1;
+
+                        if (!isProcessing)
+                        {
+                            o.TryGetValue("isMatch", out Value t2);
+                            bool isMatch = ((ValNumber)t2).value == 1;
+                            if (isMatch)
+                            {
+                                if (matchedObject == null) return new Intrinsic.Result(p.result, false);
+                                if (isAuto)
+                                {
+                                    string name = Path.GetFileName(importPath);
+
+                                    TAC.Context callerContext = context.parent;
+                                    callerContext.SetVar(name, matchedObject);
+                                }
+
+                                return new Intrinsic.Result(matchedObject);
+
+                            }
+                            else
+                            {
+                                fullPath = Engine.ResolvePath(path, importPath + ".ms");
+                            }
+
+                            Parser parser = new();
+                            string fileContent;
+
+                            if (!Engine.IsHTTP(fullPath.AbsoluteUri))
+                            {
+                                StreamReader file = new(fullPath.AbsolutePath);
+                                fileContent = file.ReadToEnd();
+                            }
+                            else
+                            {
+
+                                fileContent = client.GetStringAsync(fullPath).GetAwaiter().GetResult();
+                            }
+
+                            parser.errorContext = fullPath.AbsoluteUri;
+
+                            string dirPath = new Uri(fullPath, "./").AbsoluteUri;
+                            parser.Parse("import = createImport(\"" + dirPath + "\")");
+                            parser.Parse("path = \"" + fullPath + "\"");
+                            parser.Parse("createImport = outer.createImport(path)");
+                            parser.Parse(fileContent);
+                            engine.InvokeValue(new ValFunction(parser.CreateImport()), [])
+                                .ContinueWith((task) =>
+                                {
+                                    val = task.Result;
+                                });
+                            return new Intrinsic.Result(new MapBuilder().AddProp("isProcessing", new ValNumber(1)).map, false);
+                        }
+                        else if (val != null)
                         {
                             if (isAuto)
                             {
                                 string name = Path.GetFileName(importPath);
 
                                 TAC.Context callerContext = context.parent;
-                                callerContext.SetVar(name, matched);
+                                callerContext.SetVar(name, val);
                             }
-
-                            return new Intrinsic.Result(matched);
+                            return new Intrinsic.Result(val);
                         }
-
-                        string path = ((ValString)engine.interpreter.GetGlobalValue("path")).value;
-                        fullPath = Engine.ResolvePath(new Uri(new Uri(path), "./").AbsoluteUri, matched + ".ms");
-                    }
-                    else
-                    {
-                        fullPath = Engine.ResolvePath(path, importPath + ".ms");
-                    }
-
-                    if (p != null)
-                    {
-                        if (val == null) return new Intrinsic.Result(ValNull.instance, false);
-
-                        if (isAuto)
+                        else
                         {
-                            string name = Path.GetFileName(importPath);
-
-                            TAC.Context callerContext = context.parent;
-                            callerContext.SetVar(name, val);
+                            return new Intrinsic.Result(p.result, false);
                         }
-
-                        return new Intrinsic.Result(val);
                     }
 
-                    Parser parser = new();
-                    string fileContent;
 
-                    if (!Engine.IsHTTP(fullPath.AbsoluteUri))
+                    var matched = MatchPattern(importPath);
+
+                    if (matched != null)
                     {
-                        StreamReader file = new(fullPath.AbsolutePath);
-                        fileContent = file.ReadToEnd();
-                    }
-                    else
-                    {
-
-                        fileContent = client.GetStringAsync(fullPath).GetAwaiter().GetResult();
-                    }
-
-                    string dirPath = new Uri(fullPath, "./").AbsoluteUri;
-                    parser.Parse("import = createImport(\"" + dirPath + "\")");
-                    parser.Parse("path = \"" + fullPath + "\"");
-                    parser.Parse("createImport = outer.createImport(path)");
-                    parser.Parse(fileContent);
-                    _ = engine.InvokeValue(new ValFunction(parser.CreateImport()), [])
-                        .ContinueWith((task) =>
+                        matched.ContinueWith((task) =>
                         {
-                            val = task.Result;
+                            matchedObject = task.Result;
                         });
-                    return new Intrinsic.Result(ValNull.instance, false);
+
+                        return new Intrinsic.Result(new MapBuilder().AddProp("isMatch", new ValNumber(1)).AddProp("isProcessing", new ValNumber(0)).map, false);
+                    }
+                    else
+                    {
+                        return new Intrinsic.Result(new MapBuilder().AddProp("isMatch", new ValNumber(0)).AddProp("isProcessing", new ValNumber(0)).map, false);
+                    }
+
                 })
                 .Function;
 
@@ -120,7 +147,7 @@ namespace Kaolin.Flow.Plugins
             return new Uri(s).AbsoluteUri;
         }
 
-        public Value? MatchPattern(string s)
+        public Task<Value>? MatchPattern(string s)
         {
             ValMap map = (ValMap)engine.interpreter.GetGlobalValue("imports");
 
@@ -128,7 +155,7 @@ namespace Kaolin.Flow.Plugins
             {
                 var key = ((ValString)entry.Key).value;
 
-                if (key == s) return entry.Value;
+                if (key == s) return engine.InvokeValue((ValFunction)entry.Value, [Utils.Cast(s)]);
 
             }
 
