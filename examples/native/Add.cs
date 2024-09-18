@@ -1,6 +1,10 @@
 ﻿class Add
 {
-    public static double Do(double a, double b)
+    public static int Do(int a, int b)
+    {
+        return a + b;
+    }
+    public int Does(int a, int b)
     {
         return a + b;
     }
