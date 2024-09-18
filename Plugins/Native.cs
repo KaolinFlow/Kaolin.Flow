@@ -133,6 +133,11 @@ namespace Kaolin.Flow.Plugins
             }
         }
 
+        public static string ResolveType(Type type)
+        {
+            return "unimplemented";
+        }
+
         public IntrinsicCode CreateCallbackInstance(Type type, ValMap symbolsDefinition, ValMap parentDefinition)
         {
             symbolsDefinition.TryGetValue("args", out Value _def);
@@ -204,9 +209,8 @@ namespace Kaolin.Flow.Plugins
                     }
 
                     if (method == null) throw new Exception("Cannot found method " + type.Name + "." + key);
-                    value.TryGetValue("isStatic", out Value _is_static);
-                    var isStatic = ((ValNumber)_is_static).value != 0;
-                    if (isStatic && instance != null) continue;
+
+                    if (method.IsStatic && instance != null) continue;
                 }
 
 

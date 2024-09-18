@@ -1,18 +1,6 @@
 import "native"
 
-symbols = {}
-symbols["Add"] = {}
-symbols["Add"]["Do"] = {}
-symbols["Add"]["Do"]["args"] = [native.Type.Int, native.Type.Int]
-symbols["Add"]["Do"]["return"] = native.Type.Int
-symbols["Add"]["Do"]["isStatic"] = true
-symbols["Add"]["Does"] = {}
-symbols["Add"]["Does"]["args"] = [native.Type.Int, native.Type.Int]
-symbols["Add"]["Does"]["return"] = native.Type.Int
-symbols["Add"]["Does"]["isStatic"] = false
-symbols["Add"]["Add"] = {}
-symbols["Add"]["Add"]["args"] = []
-
+symbols = { "Add": { "Do": { "args": [native.Type.Int, native.Type.Int], "return": native.Type.Int }, "Does": { "args": [native.Type.Int, native.Type.Int], "return": native.Type.Int }, "Add": { "args": [] } } }
 
 dll = native.import("./native/bin/Debug/net8.0/native.dll", symbols)
 
