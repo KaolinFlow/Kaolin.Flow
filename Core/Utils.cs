@@ -18,12 +18,13 @@ namespace Kaolin.Flow.Builders
 
         public static object UnWrapValue(Value value, Engine engine)
         {
-            if (value.GetType() == typeof(ValString)) return UnWrapValue((ValString)value);
-            if (value.GetType() == typeof(ValNumber)) return UnWrapValue((ValNumber)value);
-            if (value.GetType() == typeof(ValFunction)) return UnWrapValue((ValFunction)value, engine);
-            if (value.GetType() == typeof(ValNull)) return null!;
-            if (value.GetType() == typeof(ValList)) return UnWrapValue((ValList)value, engine);
-            if (value.GetType() == typeof(ValMap)) return UnWrapValue((ValMap)value, engine);
+            if (value is ValString v1) return UnWrapValue(v1);
+            if (value is ValNumber v2) return UnWrapValue(v2);
+            if (value is ValFunction v3) return UnWrapValue(v3, engine);
+            if (value is ValNull) return null!;
+            if (value is ValList v5) return UnWrapValue(v5, engine);
+            if (value is ValMap v6) return UnWrapValue(v6, engine);
+            if (value is ValPtr v7) return UnWrapValue(v7);
 
             throw new Exception("Type: " + value.GetType().ToString() + " is not supported");
         }
@@ -31,7 +32,10 @@ namespace Kaolin.Flow.Builders
         {
             return s.value;
         }
-
+        public static object UnWrapValue(ValPtr s)
+        {
+            return s.value;
+        }
         public static double UnWrapValue(ValNumber s)
         {
             return s.value;
@@ -65,29 +69,31 @@ namespace Kaolin.Flow.Builders
                 return engine.InvokeValue(val, args).GetAwaiter().GetResult();
             };
         }
-        public static Value Cast(object v)
+        public static unsafe Value Cast(object v)
         {
+            if (v is string v3) return Cast(v3);
+            if (v is double v2) return Cast(v2);
+            if (v is float v1) return Cast(v1);
+            if (v is long v4) return Cast(v4);
+            if (v is int v5) return Cast(v5);
+            if (v is bool v6) return Cast(v6);
+            if (v is FunctionPointer v7) return Cast(v7);
+            if (v is MapPointer v8) return Cast(v8);
+            if (v is ListPointer v9) return Cast(v9);
+            if (v is null) return ValNull.instance;
+            if (v is Ptr v10) return Cast(v10);
 
-            Type type = v.GetType();
-            if (type == typeof(string)) return Cast((string)v);
-            if (type == typeof(double)) return Cast((double)v);
-            if (type == typeof(float)) return Cast((float)v);
-            if (type == typeof(long)) return Cast((long)v);
-            if (type == typeof(int)) return Cast((int)v);
-            if (type == typeof(bool)) return Cast((bool)v);
-            if (type == typeof(FunctionPointer)) return Cast((FunctionPointer)v);
-            if (type == typeof(MapPointer)) return Cast((MapPointer)v);
-            if (type == typeof(ListPointer)) return Cast((ListPointer)v);
-            if (type == null) return ValNull.instance;
-
-            throw new Exception("Type: " + type.ToString() + " is not supported!");
+            throw new Exception("Type: " + v.GetType().ToString() + " is not supported!");
         }
 
+        public static ValPtr Cast(Ptr o)
+        {
+            return new ValPtr(o);
+        }
         public static ValString Cast(string s)
         {
             return new ValString(s);
         }
-
         public static ValMap Cast(MapPointer map)
         {
             ValMap r = new();
@@ -99,7 +105,6 @@ namespace Kaolin.Flow.Builders
 
             return r;
         }
-
         public static ValList Cast(ListPointer list)
         {
             ValList r = new();
@@ -111,8 +116,6 @@ namespace Kaolin.Flow.Builders
 
             return r;
         }
-
-
         public static ValFunction Cast(FunctionPointer f)
         {
             return new FunctionBuilder()
@@ -126,7 +129,6 @@ namespace Kaolin.Flow.Builders
         {
             return new ValNumber(n);
         }
-
         public static ValNumber Cast(float n)
         {
             return new ValNumber(n);
@@ -139,12 +141,10 @@ namespace Kaolin.Flow.Builders
         {
             return new ValNumber(n);
         }
-
         public static ValNumber Cast(bool b)
         {
             return new ValNumber(b ? 1 : 0);
         }
-
         public static bool EndsWith(byte[] A, byte[] B)
         {
             if (B.Length > A.Length)
@@ -158,6 +158,5 @@ namespace Kaolin.Flow.Builders
 
             return true;
         }
-
     }
 }

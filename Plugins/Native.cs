@@ -5,7 +5,6 @@ using Miniscript;
 
 namespace Kaolin.Flow.Plugins
 {
-
     public class Native(Engine engine) : Base(engine)
     {
         readonly public static string TypeString = "string";
@@ -18,6 +17,9 @@ namespace Kaolin.Flow.Plugins
         readonly public static string TypeFunction = "function";
         readonly public static string TypeBool = "bool";
         readonly public static string TypeAuto = "auto";
+        readonly public static string TypePtr = "ptr";
+        readonly public static string TypeVoid = "void";
+        readonly public static string TypeType = "type";
         readonly public static ValMap types = new MapBuilder()
            .AddProp("String", Utils.Cast(TypeString))
            .AddProp("Int", Utils.Cast(TypeInt))
@@ -29,6 +31,9 @@ namespace Kaolin.Flow.Plugins
            .AddProp("Function", Utils.Cast(TypeFunction))
            .AddProp("Bool", Utils.Cast(TypeBool))
            .AddProp("Auto", Utils.Cast(TypeAuto))
+           .AddProp("Pointer", Utils.Cast(TypePtr))
+           .AddProp("Void", Utils.Cast(TypeVoid))
+           .AddProp("Type", Utils.Cast(TypeType))
            .map;
 
         public object UnWrapValue(Value value, string type)
@@ -43,12 +48,10 @@ namespace Kaolin.Flow.Plugins
             }
             else if (type == TypeLong)
             {
-
                 return (long)Utils.UnWrapValue((ValNumber)value);
             }
             else if (type == TypeFloat)
             {
-
                 return (float)Utils.UnWrapValue((ValNumber)value);
             }
             else if (type == TypeDouble)
@@ -61,7 +64,6 @@ namespace Kaolin.Flow.Plugins
             }
             else if (type == TypeMap)
             {
-
                 return Utils.UnWrapValue((ValMap)value, engine);
             }
             else if (type == TypeFunction)
@@ -76,14 +78,30 @@ namespace Kaolin.Flow.Plugins
             {
                 return Utils.UnWrapValue(value, engine);
             }
+            else if (type == TypePtr)
+            {
+                return Utils.UnWrapValue((ValPtr)value);
+            }
+            else if (type == TypeVoid)
+            {
+                return ValNull.instance;
+            }
+            else if (type == TypeVoid)
+            {
+                return ((ValMap)value).userData;
+            }
             else
             {
                 throw new Exception("Unknown type " + type);
             }
         }
 
-        public static Value Cast(object value, string type)
+        public Value Cast(object value, ValMap typeMap)
         {
+            typeMap.TryGetValue("type", out Value t);
+
+            string type = ((ValString)t!).value;
+
             if (type == TypeString)
             {
                 return Utils.Cast((string)value);
@@ -94,12 +112,10 @@ namespace Kaolin.Flow.Plugins
             }
             else if (type == TypeLong)
             {
-
                 return Utils.Cast((long)value);
             }
             else if (type == TypeFloat)
             {
-
                 return Utils.Cast((float)value);
             }
             else if (type == TypeDouble)
@@ -112,7 +128,6 @@ namespace Kaolin.Flow.Plugins
             }
             else if (type == TypeMap)
             {
-
                 return Utils.Cast((MapPointer)value);
             }
             else if (type == TypeFunction)
@@ -126,6 +141,20 @@ namespace Kaolin.Flow.Plugins
             else if (type == TypeAuto)
             {
                 return Utils.Cast(value);
+            }
+            else if (type == TypePtr)
+            {
+                return Utils.Cast((Ptr)value);
+            }
+            else if (type == TypeVoid)
+            {
+                return ValNull.instance;
+            }
+            else if (type == TypeType)
+            {
+                typeMap.TryGetValue("definition", out Value m);
+
+                return new MapBuilder(WrapType(value.GetType(), (ValMap)m!, null!)).SetUserData(value).map;
             }
             else
             {
@@ -157,7 +186,7 @@ namespace Kaolin.Flow.Plugins
 
                 object o = Activator.CreateInstance(type, [.. args])!;
 
-                return new Intrinsic.Result(new MapBuilder(WrapMethods(o.GetType().GetMethods(), parentDefinition, o, type)).SetUserData(o).map);
+                return new Intrinsic.Result(new MapBuilder(WrapType(o.GetType(), parentDefinition, o)).SetUserData(o).map);
             };
         }
 
@@ -167,7 +196,7 @@ namespace Kaolin.Flow.Plugins
             symbolsDefinition.TryGetValue("return", out Value _ret);
 
             var definitions = (ValList)_def;
-            var returnType = (ValString)_ret;
+            var returnType = (ValMap)_ret;
 
             return (context, p) =>
             {
@@ -178,27 +207,27 @@ namespace Kaolin.Flow.Plugins
                     args.Add(UnWrapValue(context.GetLocal("arg" + i), ((ValString)definitions.values[i]).value));
                 }
 
-                return new Intrinsic.Result(Cast(method.Invoke(instance, [.. args])!, returnType.value));
+                return new Intrinsic.Result(Cast(method.Invoke(instance, [.. args])!, returnType));
             };
         }
 
-        public ValMap WrapMethods(MethodInfo[] methods, ValMap symbolsDefinition, object instance, Type type)
+        public ValMap WrapType(Type type, ValMap symbolsDefinition, object instance)
         {
             MapBuilder symbolsBuilder = new();
 
             foreach (var entrymap in symbolsDefinition.map)
             {
-                MethodInfo method = null!;
                 var key = ((ValString)entrymap.Key).value;
                 var value = (ValMap)entrymap.Value;
                 value.TryGetValue("args", out Value _args);
                 var args = (ValList)_args;
-
+                IntrinsicCode callback;
                 FunctionBuilder functionBuilder = new();
 
                 if (key != type.Name)
                 {
-                    foreach (var _method in methods)
+                    MethodInfo? method = null;
+                    foreach (var _method in type.GetMethods())
                     {
                         if (_method.Name == key)
                         {
@@ -209,8 +238,14 @@ namespace Kaolin.Flow.Plugins
                     }
 
                     if (method == null) throw new Exception("Cannot found method " + type.Name + "." + key);
-
                     if (method.IsStatic && instance != null) continue;
+                    if (!method.IsStatic && instance == null) continue;
+
+                    callback = CreateCallback(method, value, instance!);
+                }
+                else
+                {
+                    callback = CreateCallbackInstance(type, value, symbolsDefinition);
                 }
 
 
@@ -219,7 +254,7 @@ namespace Kaolin.Flow.Plugins
                     functionBuilder.AddParam("arg" + i);
                 }
 
-                functionBuilder.SetCallback(key == type.Name ? CreateCallbackInstance(type, value, symbolsDefinition) : CreateCallback(method, value, instance!));
+                functionBuilder.SetCallback(callback);
                 symbolsBuilder.AddProp(key, functionBuilder.Function);
             }
 
@@ -232,6 +267,20 @@ namespace Kaolin.Flow.Plugins
             ValMap map = new MapBuilder()
                 .AddProp("Type", types)
                 .AddProp("NativeDLL", NativeDLL)
+                .AddProp("retDef",
+                    new FunctionBuilder()
+                        .AddParam("type")
+                        .AddParam("definition", ValNull.instance)
+                        .SetCallback((context, p) =>
+                            new Intrinsic.Result(
+                                new MapBuilder()
+                                    .AddProp("type", context.GetLocal("type"))
+                                    .AddProp("definition", context.GetLocal("definition"))
+                                .map
+                            )
+                        )
+                    .Function
+                )
                 .AddProp("import",
                     new FunctionBuilder()
                         .AddParam("path")
@@ -263,7 +312,7 @@ namespace Kaolin.Flow.Plugins
 
                                 ValMap map = (ValMap)_m;
 
-                                resultBuilder.AddProp(entry.Key, WrapMethods(type.GetMethods(), map, null!, type));
+                                resultBuilder.AddProp(entry.Key, WrapType(type, map, null!));
                             }
 
                             return new Intrinsic.Result(
@@ -272,7 +321,7 @@ namespace Kaolin.Flow.Plugins
                                     .map
                             );
                         })
-                        .Function
+                    .Function
                 )
                 .map;
 

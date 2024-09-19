@@ -13,6 +13,7 @@
     <StartupObject>Program</StartupObject>
     <Configuration>Release</Configuration>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup></ItemGroup>
