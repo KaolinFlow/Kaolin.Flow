@@ -5,16 +5,17 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <GenerateProgramFile>false</GenerateProgramFile>
-
+    <GenerateProgramFile>true</GenerateProgramFile>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute> 
     <StartupObject>Program</StartupObject>
+    <Configuration>Release</Configuration>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="org.miniscript.MiniScript" Version="1.6.2" />
-  </ItemGroup>
+  <ItemGroup></ItemGroup>
   
 
 </Project>

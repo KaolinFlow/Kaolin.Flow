@@ -1,4 +1,4 @@
-﻿using Kaolin.Flow;
+using Kaolin.Flow;
 using Miniscript;
 
 class Program(Interpreter interpreter, string path, bool isDebugging) : Runtime(interpreter, path, isDebugging)
