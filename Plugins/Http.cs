@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http.Headers;
 using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
@@ -14,7 +13,6 @@ namespace Kaolin.Flow.Plugins
         }
 
         readonly HttpClient client = new();
-        readonly Dictionary<string, Value> memo = [];
         public static Dictionary<string, string> UnWrapHeaders(ValMap headersMap)
         {
             Dictionary<string, string> headers = [];
@@ -99,17 +97,12 @@ namespace Kaolin.Flow.Plugins
                 {
                     if (p != null)
                     {
-                        string key = ((ValString)p.result).value;
-                        bool ok = memo.TryGetValue(key, out Value val);
-
-                        if (!ok) return new Intrinsic.Result(p.result, false);
-
-                        memo.Remove(key);
+                        if (!context.variables.map.ContainsKey(new ValString("value"))) return p;
+                        Value val = context.GetVar("value", ValVar.LocalOnlyMode.Strict);
 
                         return new Intrinsic.Result(val!, true);
                     }
 
-                    string s = Guid.NewGuid().ToString();
                     Dictionary<string, string> headers = UnWrapHeaders((ValMap)context.GetLocal("headers"));
 
                     var requestMessage = new HttpRequestMessage(method, context.GetLocalString("url"));
@@ -127,10 +120,10 @@ namespace Kaolin.Flow.Plugins
                         .Unwrap()
                         .ContinueWith((t) =>
                         {
-                            memo.Add(s, t.Result);
+                            context.SetVar("value", t.Result);
                         });
 
-                    return new Intrinsic.Result(new ValString(s), false);
+                    return new Intrinsic.Result(ValNull.instance, false);
                 })
                 .Function;
         }
@@ -143,17 +136,12 @@ namespace Kaolin.Flow.Plugins
                 {
                     if (p != null)
                     {
-                        string key = ((ValString)p.result).value;
-                        bool ok = memo.TryGetValue(key, out Value val);
-
-                        if (!ok) return new Intrinsic.Result(p.result, false);
-
-                        memo.Remove(key);
+                        if (!context.variables.map.ContainsKey(new ValString("value"))) return p;
+                        Value val = context.GetVar("value", ValVar.LocalOnlyMode.Strict);
 
                         return new Intrinsic.Result(val!, true);
                     }
 
-                    string s = Guid.NewGuid().ToString();
                     Dictionary<string, string> headers = UnWrapHeaders((ValMap)context.GetLocal("headers"));
 
                     var requestMessage =
@@ -167,10 +155,10 @@ namespace Kaolin.Flow.Plugins
                         .Unwrap()
                         .ContinueWith((t) =>
                         {
-                            memo.Add(s, t.Result);
+                            context.SetVar("value", t.Result);
                         });
 
-                    return new Intrinsic.Result(new ValString(s), false);
+                    return new Intrinsic.Result(ValNull.instance, false);
                 })
                 .Function;
         }

@@ -268,7 +268,7 @@ namespace Kaolin.Flow.Plugins
                 .AddProp("Type", types)
                 .AddProp("NativeDLL", NativeDLL)
                 .AddProp("retDef",
-                    new FunctionBuilder()
+                    new FunctionBuilder("retDef")
                         .AddParam("type")
                         .AddParam("definition", ValNull.instance)
                         .SetCallback((context, p) =>
@@ -282,7 +282,7 @@ namespace Kaolin.Flow.Plugins
                     .Function
                 )
                 .AddProp("import",
-                    new FunctionBuilder()
+                    new FunctionBuilder("import")
                         .AddParam("path")
                         .AddParam("symbols")
                         .SetCallback((context, p) =>

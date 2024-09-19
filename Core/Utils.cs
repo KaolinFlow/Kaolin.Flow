@@ -118,7 +118,7 @@ namespace Kaolin.Flow.Builders
         }
         public static ValFunction Cast(FunctionPointer f)
         {
-            return new FunctionBuilder()
+            return new FunctionBuilder(f.Method.Name)
                 .SetCallback((context, p) =>
                 {
                     return new Intrinsic.Result(f([.. context.args]), false);
