@@ -35,7 +35,13 @@ namespace Kaolin.Flow.Core
         {
             if (HasProtocol(path)) return new Uri(path).Scheme;
 
-            return "";
+            return "file";
+        }
+        public static string WrapWithProtocol(string path)
+        {
+            string p = GetProtocol(path);
+
+            return p + "://" + path;
         }
         public static Uri ResolvePath(string basePath, string relativePath)
         {
@@ -49,7 +55,7 @@ namespace Kaolin.Flow.Core
             }
             else
             {
-                return new Uri(GetProtocol(basePath) + "://" + Path.Combine(RemoveProtocol(basePath), relativePath));
+                return new Uri(WrapWithProtocol(Path.Combine(RemoveProtocol(basePath), relativePath)));
             }
         }
 
