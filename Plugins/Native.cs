@@ -18,7 +18,6 @@ namespace Kaolin.Flow.Plugins
         readonly public static string TypeBool = "bool";
         readonly public static string TypeAuto = "auto";
         readonly public static string TypePtr = "ptr";
-        readonly public static string TypeVoid = "void";
         readonly public static string TypeInstance = "instance";
         readonly public static ValMap types = new MapBuilder()
            .AddProp("String", Utils.Cast(TypeString))
@@ -32,7 +31,6 @@ namespace Kaolin.Flow.Plugins
            .AddProp("Bool", Utils.Cast(TypeBool))
            .AddProp("Auto", Utils.Cast(TypeAuto))
            .AddProp("Pointer", Utils.Cast(TypePtr))
-           .AddProp("Void", Utils.Cast(TypeVoid))
            .AddProp("Instance", Utils.Cast(TypeInstance))
            .map;
 
@@ -82,11 +80,7 @@ namespace Kaolin.Flow.Plugins
             {
                 return Utils.UnWrapValue((ValPtr)value);
             }
-            else if (type == TypeVoid)
-            {
-                return ValNull.instance;
-            }
-            else if (type == TypeVoid)
+            else if (type == TypeInstance)
             {
                 return ((ValMap)value).userData;
             }
@@ -146,10 +140,6 @@ namespace Kaolin.Flow.Plugins
             {
                 return Utils.Cast((Ptr)value);
             }
-            else if (type == TypeVoid)
-            {
-                return ValNull.instance;
-            }
             else if (type == TypeInstance)
             {
                 typeMap.TryGetValue("definition", out Value m);
@@ -170,10 +160,8 @@ namespace Kaolin.Flow.Plugins
         public IntrinsicCode CreateCallbackInstance(Type type, ValMap symbolsDefinition, ValMap parentDefinition)
         {
             symbolsDefinition.TryGetValue("args", out Value _def);
-            symbolsDefinition.TryGetValue("return", out Value _ret);
 
             var definitions = (ValList)_def;
-            var returnType = (ValString)_ret;
 
             return (context, p) =>
             {
@@ -196,7 +184,6 @@ namespace Kaolin.Flow.Plugins
             symbolsDefinition.TryGetValue("return", out Value _ret);
 
             var definitions = (ValList)_def;
-            var returnType = (ValMap)_ret;
 
             return (context, p) =>
             {
@@ -206,6 +193,15 @@ namespace Kaolin.Flow.Plugins
                 {
                     args.Add(UnWrapValue(context.GetLocal("arg" + i), ((ValString)definitions.values[i]).value));
                 }
+
+                if (_ret == null)
+                {
+                    method.Invoke(instance, [.. args]);
+
+                    return new Intrinsic.Result(ValNull.instance);
+                }
+
+                var returnType = (ValMap)_ret;
 
                 return new Intrinsic.Result(Cast(method.Invoke(instance, [.. args])!, returnType));
             };

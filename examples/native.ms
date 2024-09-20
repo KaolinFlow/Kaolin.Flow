@@ -1,6 +1,6 @@
 import "native"
 
-symbols = { "Add": { "WritePtr": { "args": [], "return": native.retDef(native.Type.Pointer) }, "ReadPtr": { "args": [native.Type.Pointer], "return": native.retDef(native.Type.Void) }, "Do": { "args": [native.Type.Int, native.Type.Int], "return": native.retDef(native.Type.Int) }, "Does": { "args": [native.Type.Int, native.Type.Int], "return": native.retDef(native.Type.Int) }, "Add": { "args": [] } } }
+symbols = { "Add": { "WritePtr": { "args": [], "return": native.retDef(native.Type.Pointer) }, "ReadPtr": { "args": [native.Type.Pointer] }, "Do": { "args": [native.Type.Int, native.Type.Int], "return": native.retDef(native.Type.Int) }, "Does": { "args": [native.Type.Int, native.Type.Int], "return": native.retDef(native.Type.Int) }, "Add": { "args": [] } } }
 
 symbols["Add"]["Instance"] = { "args": [], "return": native.retDef(native.Type.Instance, symbols["Add"]) }
 
