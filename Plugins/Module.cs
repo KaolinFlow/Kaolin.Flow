@@ -157,7 +157,7 @@ namespace Kaolin.Flow.Plugins
             engine.interpreter.SetGlobalValue("Module", ModuleClass);
             engine.interpreter.SetGlobalValue("newModule", NewModuleFunction);
             engine.Eval("globals.import = createImport(\"" + ToUriString(Path.GetDirectoryName(uri.AbsolutePath)!) + "\")\nglobals.path = \"" + uri.AbsoluteUri + "\"");
-            engine.Eval("(version)[\"kaolin.flow\"] = \"1.0.0\"");
+            engine.Eval("(version)[\"kaolin.flow\"] = \"" + ThisAssembly.AssemblyInformationalVersion + "\"");
         }
     }
 }
