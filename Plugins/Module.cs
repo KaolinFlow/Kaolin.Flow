@@ -45,13 +45,13 @@ namespace Kaolin.Flow.Plugins
 
                         return new Intrinsic.Result(value);
                     }
-                    fullPath = Engine.ResolvePath(path, importPath + ".ms");
+                    fullPath = Utils.ResolvePath(path, importPath + ".ms");
 
 
                     Parser parser = new();
                     string fileContent;
 
-                    if (!Engine.IsHTTP(fullPath.AbsoluteUri))
+                    if (!Utils.IsHTTP(fullPath.AbsoluteUri))
                     {
                         StreamReader file = new(fullPath.AbsolutePath);
                         fileContent = file.ReadToEnd();

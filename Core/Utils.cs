@@ -1,8 +1,9 @@
+using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
 using Miniscript;
 
 
-namespace Kaolin.Flow.Builders
+namespace Kaolin.Flow.Core
 {
     public class MapPointer : Dictionary<object, object>
     {
@@ -15,6 +16,35 @@ namespace Kaolin.Flow.Builders
     public delegate Value FunctionPointer(params Value[] args);
     public class Utils
     {
+        public static string UnWrapFilePath(string basePath, string path)
+        {
+            return ResolvePath(new Uri(new Uri(basePath), "./").AbsolutePath, path).AbsolutePath;
+        }
+
+        public static bool IsHTTP(string path)
+        {
+            return path.StartsWith("https://") || path.StartsWith("http://");
+        }
+        public static Uri ResolvePath(string basePath, string relativePath)
+        {
+            if (IsHTTP(relativePath))
+            {
+                return new Uri(relativePath);
+            }
+            else if (IsHTTP(basePath))
+            {
+                return new Uri(new Uri(basePath), relativePath);
+            }
+            else
+            {
+                return new Uri(Path.Combine(new Uri(basePath).AbsolutePath, relativePath));
+            }
+        }
+
+        public static string WrapFilePath(string s)
+        {
+            return "file:/" + s;
+        }
 
         public static object UnWrapValue(Value value, Engine engine)
         {

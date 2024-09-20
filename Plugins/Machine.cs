@@ -92,13 +92,13 @@ namespace Kaolin.Flow.Plugins
 
         public static string UnWrapPath(string s)
         {
-            return Engine.ResolvePath(new Uri(Directory.GetCurrentDirectory()).AbsolutePath, s).AbsolutePath;
+            return Utils.ResolvePath(new Uri(Directory.GetCurrentDirectory()).AbsolutePath, s).AbsolutePath;
         }
 
 
         public static string WrapPath(string s)
         {
-            return Engine.ResolvePath(new Uri(Directory.GetCurrentDirectory()).AbsolutePath, s).AbsoluteUri;
+            return Utils.ResolvePath(new Uri(Directory.GetCurrentDirectory()).AbsolutePath, s).AbsoluteUri;
         }
 
         public override void Inject()
@@ -298,7 +298,7 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("subPath")
                                 .SetCallback((context, p) =>
                                 {
-                                    return new Intrinsic.Result(Engine.ResolvePath(context.GetLocalString("basePath"), context.GetLocalString("subPath")).AbsoluteUri);
+                                    return new Intrinsic.Result(Utils.ResolvePath(context.GetLocalString("basePath"), context.GetLocalString("subPath")).AbsoluteUri);
                                 })
                                 .Function
                         )

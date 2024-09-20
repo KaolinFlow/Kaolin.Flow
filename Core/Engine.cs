@@ -8,35 +8,6 @@ namespace Kaolin.Flow.Core
         public readonly Interpreter interpreter = interpreter;
         public readonly bool isDebugging = isDebugging;
         public string path = path;
-        public string UnWrapFilePath(string s)
-        {
-            return ResolvePath(new Uri(new Uri(path), "./").AbsolutePath, s).AbsolutePath;
-        }
-
-        public static bool IsHTTP(string s)
-        {
-            return s.StartsWith("https://") || s.StartsWith("http://");
-        }
-        public static Uri ResolvePath(string basePath, string relativePath)
-        {
-            if (IsHTTP(relativePath))
-            {
-                return new Uri(relativePath);
-            }
-            else if (IsHTTP(basePath))
-            {
-                return new Uri(new Uri(basePath), relativePath);
-            }
-            else
-            {
-                return new Uri(Path.Combine(new Uri(basePath).AbsolutePath, relativePath));
-            }
-        }
-
-        public static string WrapFilePath(string s)
-        {
-            return "file:/" + s;
-        }
 
         public void REPL(string sourceLine, double timeLimit = 60)
         {
