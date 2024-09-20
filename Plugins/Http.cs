@@ -97,6 +97,12 @@ namespace Kaolin.Flow.Plugins
                 {
                     if (p != null)
                     {
+                        if (context.variables.map.ContainsKey(new ValString("error")))
+                        {
+                            Value errVal = context.GetVar("error", ValVar.LocalOnlyMode.Strict);
+
+                            throw (MiniscriptException)((ValMap)errVal).userData;
+                        }
                         if (!context.variables.map.ContainsKey(new ValString("value"))) return p;
                         Value val = context.GetVar("value", ValVar.LocalOnlyMode.Strict);
 
@@ -124,7 +130,14 @@ namespace Kaolin.Flow.Plugins
                             {
                                 context.SetVar("value", t.Result);
                             }
-                        });
+                        })
+                        .ContinueWith((t) =>
+                        {
+                            lock (context.variables)
+                            {
+                                context.SetVar("error", new MapBuilder().SetUserData(t.Exception!).map);
+                            }
+                        }, TaskContinuationOptions.OnlyOnFaulted);
 
                     return new Intrinsic.Result(ValNull.instance, false);
                 })
@@ -139,6 +152,12 @@ namespace Kaolin.Flow.Plugins
                 {
                     if (p != null)
                     {
+                        if (context.variables.map.ContainsKey(new ValString("error")))
+                        {
+                            Value errVal = context.GetVar("error", ValVar.LocalOnlyMode.Strict);
+
+                            throw (MiniscriptException)((ValMap)errVal).userData;
+                        }
                         if (!context.variables.map.ContainsKey(new ValString("value"))) return p;
                         Value val = context.GetVar("value", ValVar.LocalOnlyMode.Strict);
 
@@ -162,7 +181,14 @@ namespace Kaolin.Flow.Plugins
                             {
                                 context.SetVar("value", t.Result);
                             }
-                        });
+                        })
+                        .ContinueWith((t) =>
+                        {
+                            lock (context.variables)
+                            {
+                                context.SetVar("error", new MapBuilder().SetUserData(t.Exception!).map);
+                            }
+                        }, TaskContinuationOptions.OnlyOnFaulted);
 
                     return new Intrinsic.Result(ValNull.instance, false);
                 })
