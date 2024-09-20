@@ -58,7 +58,8 @@ print e
 print f
 ```
 
-## Eval
+## Eval (WIP)
+Compile the code argument into a function then execute it.
 ```
 eval "return 0"
 ```
