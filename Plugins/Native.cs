@@ -19,7 +19,7 @@ namespace Kaolin.Flow.Plugins
         readonly public static string TypeAuto = "auto";
         readonly public static string TypePtr = "ptr";
         readonly public static string TypeVoid = "void";
-        readonly public static string TypeType = "type";
+        readonly public static string TypeInstance = "instance";
         readonly public static ValMap types = new MapBuilder()
            .AddProp("String", Utils.Cast(TypeString))
            .AddProp("Int", Utils.Cast(TypeInt))
@@ -33,7 +33,7 @@ namespace Kaolin.Flow.Plugins
            .AddProp("Auto", Utils.Cast(TypeAuto))
            .AddProp("Pointer", Utils.Cast(TypePtr))
            .AddProp("Void", Utils.Cast(TypeVoid))
-           .AddProp("Type", Utils.Cast(TypeType))
+           .AddProp("Instance", Utils.Cast(TypeInstance))
            .map;
 
         public object UnWrapValue(Value value, string type)
@@ -150,7 +150,7 @@ namespace Kaolin.Flow.Plugins
             {
                 return ValNull.instance;
             }
-            else if (type == TypeType)
+            else if (type == TypeInstance)
             {
                 typeMap.TryGetValue("definition", out Value m);
 
