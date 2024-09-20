@@ -11,8 +11,6 @@ namespace Kaolin.Flow.Core
         public string path = path;
         public string UnWrapFilePath(string s)
         {
-            if (s.StartsWith("file://")) return new Uri(s).AbsolutePath;
-
             return ResolvePath(new Uri(new Uri(path), "./").AbsolutePath, s).AbsolutePath;
         }
 

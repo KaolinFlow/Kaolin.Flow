@@ -9,10 +9,52 @@ namespace Kaolin.Flow.Plugins
 {
     public class Machine(Engine engine) : Base(engine)
     {
+        public static (FileMode, FileAccess) ConvertMode(string mode)
+        {
+            FileMode fileMode;
+            FileAccess fileAccess;
+
+            switch (mode)
+            {
+                case "r":
+                    fileMode = FileMode.Open;
+                    fileAccess = FileAccess.Read;
+                    break;
+
+                case "w":
+                    fileMode = FileMode.Create;
+                    fileAccess = FileAccess.Write;
+                    break;
+
+                case "rw":
+                    fileMode = FileMode.OpenOrCreate;
+                    fileAccess = FileAccess.ReadWrite;
+                    break;
+
+                case "r+":
+                    fileMode = FileMode.Open;
+                    fileAccess = FileAccess.ReadWrite;
+                    break;
+
+                case "w+":
+                    fileMode = FileMode.Create;
+                    fileAccess = FileAccess.ReadWrite;
+                    break;
+
+                case "rw+":
+                    fileMode = FileMode.OpenOrCreate;
+                    fileAccess = FileAccess.ReadWrite;
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unsupported mode: {mode}");
+            }
+
+            return (fileMode, fileAccess);
+        }
 
         public static bool IsDirectory(string path)
         {
-
             FileAttributes attr = File.GetAttributes(path);
             bool isDirectory = (attr & FileAttributes.Directory) == FileAttributes.Directory;
 
@@ -48,8 +90,20 @@ namespace Kaolin.Flow.Plugins
             }
         }
 
+        public static string UnWrapPath(string s)
+        {
+            return Engine.ResolvePath(new Uri(Directory.GetCurrentDirectory()).AbsolutePath, s).AbsolutePath;
+        }
+
+
+        public static string WrapPath(string s)
+        {
+            return Engine.ResolvePath(new Uri(Directory.GetCurrentDirectory()).AbsolutePath, s).AbsoluteUri;
+        }
+
         public override void Inject()
         {
+            Directory.SetCurrentDirectory(Directory.GetParent(UnWrapPath(engine.path))!.Name);
             ValMap env = new()
             {
                 evalOverride = (Value key, out Value value) =>
@@ -88,7 +142,7 @@ namespace Kaolin.Flow.Plugins
                             new FunctionBuilder("curdir")
                                 .SetCallback((context, p) =>
                                 {
-                                    return new Intrinsic.Result(engine.path);
+                                    return new Intrinsic.Result(WrapPath(Directory.GetCurrentDirectory()));
                                 })
                                 .Function
                         )
@@ -97,11 +151,11 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("path")
                                 .SetCallback((context, p) =>
                                 {
-                                    string path = engine.UnWrapFilePath(context.GetLocalString("path"));
+                                    string path = UnWrapPath(context.GetLocalString("path"));
 
                                     if (!Directory.Exists(path)) return Intrinsic.Result.False;
 
-                                    engine.path = path;
+                                    Directory.SetCurrentDirectory(path);
 
                                     return Intrinsic.Result.True;
                                 })
@@ -112,7 +166,7 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("path")
                                 .SetCallback((context, p) =>
                                 {
-                                    Directory.CreateDirectory(engine.UnWrapFilePath(context.GetLocalString("path")));
+                                    Directory.CreateDirectory(UnWrapPath(context.GetLocalString("path")));
 
                                     return Intrinsic.Result.Null;
                                 })
@@ -127,20 +181,20 @@ namespace Kaolin.Flow.Plugins
 
                                     if (context.GetLocal("path") == ValNull.instance)
                                     {
-                                        path = engine.path;
+                                        path = Directory.GetCurrentDirectory();
                                     }
                                     else
                                     {
                                         path = context.GetLocalString("path");
                                     }
 
-                                    path = engine.UnWrapFilePath(path);
+                                    path = UnWrapPath(path);
 
                                     ValList list = new();
 
                                     foreach (var entry in Directory.EnumerateFileSystemEntries(path))
                                     {
-                                        list.values.Add(Utils.Cast(entry!));
+                                        list.values.Add(Utils.Cast(WrapPath(entry!)));
                                     }
 
                                     return new Intrinsic.Result(list);
@@ -152,7 +206,7 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("path")
                                 .SetCallback((context, p) =>
                                 {
-                                    return new Intrinsic.Result(Path.GetFileName(engine.UnWrapFilePath(context.GetLocalString("path"))));
+                                    return new Intrinsic.Result(Path.GetFileName(UnWrapPath(context.GetLocalString("path"))));
                                 })
                                 .Function
                         )
@@ -161,7 +215,7 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("path")
                                 .SetCallback((context, p) =>
                                 {
-                                    return new Intrinsic.Result(Directory.GetParent(engine.UnWrapFilePath(context.GetLocalString("path")))!.Name);
+                                    return new Intrinsic.Result(Directory.GetParent(UnWrapPath(context.GetLocalString("path")))!.Name);
                                 })
                                 .Function
                         )
@@ -170,7 +224,18 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("path")
                                 .SetCallback((context, p) =>
                                 {
-                                    return new Intrinsic.Result(Utils.Cast(File.Exists(engine.UnWrapFilePath(context.GetLocalString("path")))));
+                                    var path = UnWrapPath(context.GetLocalString("path"));
+                                    try
+                                    {
+
+                                        var isDir = IsDirectory(path);
+
+                                        return new Intrinsic.Result(Utils.Cast(isDir ? Directory.Exists(path) : File.Exists(path)));
+                                    }
+                                    catch
+                                    {
+                                        return new Intrinsic.Result(Utils.Cast(false));
+                                    }
                                 })
                                 .Function
                         )
@@ -179,7 +244,7 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("path")
                                 .SetCallback((context, p) =>
                                 {
-                                    string path = engine.UnWrapFilePath(context.GetLocalString("path"));
+                                    string path = UnWrapPath(context.GetLocalString("path"));
                                     ValList lines = new();
 
                                     foreach (var line in File.ReadLines(path))
@@ -197,7 +262,7 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("lines")
                                 .SetCallback((context, p) =>
                                 {
-                                    string path = engine.UnWrapFilePath(context.GetLocalString("path"));
+                                    string path = UnWrapPath(context.GetLocalString("path"));
                                     ValList lines = (ValList)context.GetLocal("lines");
                                     List<string> contents = [];
 
@@ -218,7 +283,7 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("isRecursive", Utils.Cast(false))
                                 .SetCallback((context, p) =>
                                 {
-                                    string path = engine.UnWrapFilePath(context.GetLocalString("path"));
+                                    string path = UnWrapPath(context.GetLocalString("path"));
                                     bool isDirectory = IsDirectory(path);
 
                                     if (isDirectory) Directory.Delete(path, context.GetLocalBool("isRecursive"));
@@ -243,8 +308,8 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("newPath")
                                 .SetCallback((context, p) =>
                                 {
-                                    string oldPath = engine.UnWrapFilePath(context.GetLocalString("oldPath"));
-                                    string newPath = engine.UnWrapFilePath(context.GetLocalString("newPath"));
+                                    string oldPath = UnWrapPath(context.GetLocalString("oldPath"));
+                                    string newPath = UnWrapPath(context.GetLocalString("newPath"));
 
                                     bool isDirectory = IsDirectory(oldPath);
 
@@ -262,8 +327,8 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("targetFilePath")
                                 .SetCallback((context, p) =>
                                 {
-                                    string sourceFilePath = engine.UnWrapFilePath(context.GetLocalString("sourceFilePath"));
-                                    string targetFilePath = engine.UnWrapFilePath(context.GetLocalString("targetFilePath"));
+                                    string sourceFilePath = UnWrapPath(context.GetLocalString("sourceFilePath"));
+                                    string targetFilePath = UnWrapPath(context.GetLocalString("targetFilePath"));
 
                                     bool isDirectory = IsDirectory(sourceFilePath);
 
@@ -280,7 +345,7 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("path")
                                 .SetCallback((context, p) =>
                                 {
-                                    string path = engine.UnWrapFilePath(context.GetLocalString("path"));
+                                    string path = UnWrapPath(context.GetLocalString("path"));
                                     string date;
                                     bool isDirectory = IsDirectory(path);
                                     long size;
@@ -298,7 +363,7 @@ namespace Kaolin.Flow.Plugins
 
                                     return new Intrinsic.Result(
                                         new MapBuilder()
-                                            .AddProp("path", Utils.Cast(Engine.WrapFilePath(path)))
+                                            .AddProp("path", Utils.Cast(WrapPath(path)))
                                             .AddProp("isDirectory", Utils.Cast(isDirectory))
                                             .AddProp("size", Utils.Cast(size))
                                             .AddProp("date", Utils.Cast(date))
@@ -314,9 +379,10 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("mode", "rw+")
                                 .SetCallback((context, p) =>
                                 {
-                                    string path = engine.UnWrapFilePath(context.GetLocalString("path"));
-                                    _ = Enum.TryParse(context.GetLocalString("mode"), out FileMode mode);
-                                    FileStream fileStream = File.Open(path, mode);
+                                    string path = UnWrapPath(context.GetLocalString("path"));
+                                    var r = ConvertMode(context.GetLocalString("mode"));
+                                    FileStream fileStream = File.Open(path, r.Item1);
+                                    var streamReader = new StreamReader(fileStream, Encoding.UTF8, true);
 
                                     bool isOpen = true;
 
@@ -355,21 +421,7 @@ namespace Kaolin.Flow.Plugins
                                                 new FunctionBuilder("atEnd")
                                                     .SetCallback((context, p) =>
                                                     {
-                                                        return new Intrinsic.Result(Utils.Cast(fileStream.Position == fileStream.Length - 1));
-                                                    })
-                                                    .Function
-                                            )
-                                            .AddProp("write",
-                                                new FunctionBuilder("write")
-                                                    .AddParam("content")
-                                                    .SetCallback((context, p) =>
-                                                    {
-                                                        Value val = context.GetLocal("content");
-
-                                                        if (val.GetType() == typeof(ValString)) fileStream.Write(Encoding.ASCII.GetBytes(((ValString)val).value));
-                                                        else fileStream.Write(Http.UnWrapData((ValList)val));
-
-                                                        return Intrinsic.Result.Null;
+                                                        return new Intrinsic.Result(Utils.Cast(fileStream.Position == fileStream.Length));
                                                     })
                                                     .Function
                                             )
@@ -384,54 +436,32 @@ namespace Kaolin.Flow.Plugins
                                                     })
                                                     .Function
                                             )
-                                            .AddProp("read",
+                                            .AddProp("readLine",
                                                 new FunctionBuilder("read")
-                                                    .AddParam("content")
-                                                    .AddParam("isUTF8", new ValNumber(1))
                                                     .SetCallback((context, p) =>
                                                     {
-                                                        byte[] bytes = Enumerable.Repeat((byte)0x0, (int)(fileStream.Length - fileStream.Position)).ToArray();
-                                                        fileStream.Read(bytes, (int)fileStream.Position, (int)(fileStream.Length - fileStream.Position));
 
-                                                        if (context.GetLocalBool("isUTF8"))
-                                                        {
-                                                            return new Intrinsic.Result(Encoding.ASCII.GetString(bytes));
-                                                        }
-
-                                                        return new Intrinsic.Result(Http.WrapData(bytes));
+                                                        return new Intrinsic.Result(Utils.Cast(streamReader.ReadLine()!));
                                                     })
                                                     .Function
                                             )
-                                            .AddProp("readLine",
-                                                new FunctionBuilder("read")
+                                            .AddProp("write",
+                                                new FunctionBuilder("write")
                                                     .AddParam("content")
-                                                    .AddParam("isUTF8", new ValNumber(1))
                                                     .SetCallback((context, p) =>
                                                     {
-                                                        List<byte> list = [];
-                                                        byte[] newLine = Encoding.UTF8.GetBytes(Environment.NewLine.ToArray());
-                                                        byte newLineMarker = newLine[^1];
+                                                        fileStream.Write(Encoding.ASCII.GetBytes(context.GetLocalString("content")));
 
-                                                        while (fileStream.Position != fileStream.Length - 1)
-                                                        {
-                                                            int one = fileStream.ReadByte();
+                                                        return Intrinsic.Result.Null;
+                                                    })
+                                                    .Function
+                                            )
+                                            .AddProp("read",
+                                                new FunctionBuilder("read")
+                                                    .SetCallback((context, p) =>
+                                                    {
 
-                                                            list.Add((byte)one);
-
-                                                            if (one == newLineMarker && Utils.EndsWith([.. list], newLine))
-                                                            {
-                                                                list = list[..(list.Count - newLine.Length)];
-
-                                                                break;
-                                                            }
-                                                        }
-
-                                                        if (context.GetLocalBool("isUTF8"))
-                                                        {
-                                                            return new Intrinsic.Result(Encoding.ASCII.GetString(list.ToArray()));
-                                                        }
-
-                                                        return new Intrinsic.Result(Http.WrapData([.. list]));
+                                                        return new Intrinsic.Result(Utils.Cast(streamReader.ReadToEnd()));
                                                     })
                                                     .Function
                                             )

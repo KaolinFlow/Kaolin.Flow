@@ -12,7 +12,7 @@ You may run the program like how you run your script with MiniScript commandline
 
 # Features
 ## MiniScript's Commandline Intrinsics
-You may import `machine` and `dev`! Please refer to [this doc](https://miniscript.org/cmdline/) as an extra guideline. `file` is untested and may breaks.<br />
+You may import `machine` and `dev`! Please refer to [this doc](https://miniscript.org/cmdline/) as an extra guideline.
 
 ## New Module
 ```
