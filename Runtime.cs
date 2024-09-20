@@ -14,11 +14,12 @@ namespace Kaolin.Flow
         {
             interpreter.SetGlobalValue("KF", new MapBuilder().map);
 
-            new Plugins.Module(this).Inject();
-            new Plugins.Machine(this).Inject();
-            new Plugins.Dev(this).Inject();
-            new Plugins.Http(this).Inject();
-            new Plugins.Native(this).Inject();
+            _ = new Plugins.Module(this);
+            _ = new Plugins.Machine(this);
+            _ = new Plugins.Dev(this);
+            _ = new Plugins.Http(this);
+            _ = new Plugins.Native(this);
+            _ = new Plugins.Loader(this);
         }
 
     }

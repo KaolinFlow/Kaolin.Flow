@@ -205,10 +205,9 @@ namespace Kaolin.Flow.Core
         {
             interpreter.vm.ManuallyPushCall(function, null!, [.. arguments]);
         }
-        public Task<Value> InvokeValue(ValFunction function, Value[] arguments)
+        public Value InvokeValue(ValFunction function, Value[] arguments)
         {
-            TaskCompletionSource<Value> tcs = new();
-
+            Value? val = null;
 
             interpreter.vm.ManuallyPushCall(new FunctionBuilder().SetCallback((context, partialResult) =>
             {
@@ -216,7 +215,7 @@ namespace Kaolin.Flow.Core
                 if (partialResult != null)
                 {
                     Value value = context.GetTemp(0);
-                    tcs.SetResult(value);
+                    val = value;
 
                     return new Intrinsic.Result(value);
                 }
@@ -225,8 +224,12 @@ namespace Kaolin.Flow.Core
 
                 return new Intrinsic.Result(ValNull.instance, false);
             }).Function, null!);
+            while (interpreter.Running() && val == null)
+            {
+                interpreter.vm.Step();
+            }
 
-            return tcs.Task;
+            return val!;
         }
 
         public static ValMap New(ValMap Class)
@@ -245,7 +248,7 @@ namespace Kaolin.Flow.Core
 
             Invoke(new ValFunction(parser.CreateImport()), []);
         }
-        public Task<Value> EvalValue(string s)
+        public Value EvalValue(string s)
         {
             Parser parser = new();
 

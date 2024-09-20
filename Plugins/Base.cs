@@ -19,7 +19,14 @@ namespace Kaolin.Flow.Plugins
         {
             engine.interpreter.GetGlobalValue("imports").SetElem(new ValString(key), new FunctionBuilder().SetCallback((context, p) =>
             {
-                return new Intrinsic.Result(value);
+                return new Intrinsic.Result(Module.NewModule(value, key));
+            }).Function);
+        }
+        public void Register(string key, IntrinsicCode code)
+        {
+            engine.interpreter.GetGlobalValue("imports").SetElem(new ValString(key), new FunctionBuilder().SetCallback((context, p) =>
+            {
+                return code(context, p);
             }).Function);
         }
 

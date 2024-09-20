@@ -43,13 +43,13 @@ print from_http
 ```
 //will only match the exact string! (please contribute to make it better)
 imports["./e"] = function(path)
-    return import("./f")
+    return newModule(import("./f"), "e")
 end function 
 
 import "e"
 
 imports["./f"] = function()
-    return "Hello!"
+    return newModule("Hello!", "f")
 end function
 
 import "f"
@@ -74,6 +74,9 @@ Just run the program without any argument.
 | delete( | url  | headers |         | ) |
 | post(   | url  | data    | headers | ) |
 | put(    | url  | data    | headers | ) |
+
+## Plugin
+Inject your own C# Plugin within MiniScript. Please view `examples/plugin.ms` and `examples/pluginHelloWorld`.
 
 ## Native Code Import (WIP)
 ```

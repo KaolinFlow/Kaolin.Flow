@@ -120,7 +120,10 @@ namespace Kaolin.Flow.Plugins
                         .Unwrap()
                         .ContinueWith((t) =>
                         {
-                            context.SetVar("value", t.Result);
+                            lock (context.variables)
+                            {
+                                context.SetVar("value", t.Result);
+                            }
                         });
 
                     return new Intrinsic.Result(ValNull.instance, false);
@@ -155,7 +158,10 @@ namespace Kaolin.Flow.Plugins
                         .Unwrap()
                         .ContinueWith((t) =>
                         {
-                            context.SetVar("value", t.Result);
+                            lock (context.variables)
+                            {
+                                context.SetVar("value", t.Result);
+                            }
                         });
 
                     return new Intrinsic.Result(ValNull.instance, false);

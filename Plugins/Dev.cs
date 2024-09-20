@@ -24,21 +24,7 @@ namespace Kaolin.Flow.Plugins
                         .AddParam("code")
                         .SetCallback((context, p) =>
                         {
-                            if (p != null)
-                            {
-                                if (!context.variables.map.ContainsKey(new ValString("value"))) return p;
-                                Value val = context.GetVar("value", ValVar.LocalOnlyMode.Strict);
-
-                                return new Intrinsic.Result(val!, true);
-                            }
-
-                            engine.EvalValue(context.GetLocalString("code"))
-                                .ContinueWith((t) =>
-                                {
-                                    context.SetVar("value", t.Result);
-                                });
-
-                            return new Intrinsic.Result(ValNull.instance, false);
+                            return new Intrinsic.Result(engine.EvalValue(context.GetLocalString("code")));
                         })
                         .Function
                 )

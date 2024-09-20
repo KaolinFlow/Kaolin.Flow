@@ -66,7 +66,7 @@ namespace Kaolin.Flow.Builders
         {
             return (params Value[] args) =>
             {
-                return engine.InvokeValue(val, args).GetAwaiter().GetResult();
+                return engine.InvokeValue(val, args);
             };
         }
         public static unsafe Value Cast(object v)

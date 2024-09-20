@@ -20,8 +20,6 @@ namespace Kaolin.Flow.Plugins
         }
         public ValFunction CreateImportFunction(string path)
         {
-            Value val = null!;
-            Value matchedObject = null!;
             ValFunction f = new FunctionBuilder("createImport")
                 .AddParam("path")
                 .AddParam("auto", new ValNumber(1))
@@ -30,103 +28,93 @@ namespace Kaolin.Flow.Plugins
                     string importPath = context.GetLocalString("path");
                     Uri fullPath;
                     bool isAuto = context.GetLocalBool("auto");
-
-                    if (p != null)
-                    {
-                        ValMap o = (ValMap)p.result;
-                        o.TryGetValue("isProcessing", out Value t1);
-                        bool isProcessing = ((ValNumber)t1).value == 1;
-
-                        if (!isProcessing)
-                        {
-                            o.TryGetValue("isMatch", out Value t2);
-                            bool isMatch = ((ValNumber)t2).value == 1;
-                            if (isMatch)
-                            {
-                                if (matchedObject == null) return new Intrinsic.Result(p.result, false);
-                                if (isAuto)
-                                {
-                                    string name = Path.GetFileName(importPath);
-
-                                    TAC.Context callerContext = context.parent;
-                                    callerContext.SetVar(name, matchedObject);
-                                }
-
-                                return new Intrinsic.Result(matchedObject);
-
-                            }
-                            else
-                            {
-                                fullPath = Engine.ResolvePath(path, importPath + ".ms");
-                            }
-
-                            Parser parser = new();
-                            string fileContent;
-
-                            if (!Engine.IsHTTP(fullPath.AbsoluteUri))
-                            {
-                                StreamReader file = new(fullPath.AbsolutePath);
-                                fileContent = file.ReadToEnd();
-                            }
-                            else
-                            {
-
-                                fileContent = client.GetStringAsync(fullPath).GetAwaiter().GetResult();
-                            }
-
-                            parser.errorContext = fullPath.AbsoluteUri;
-
-                            string dirPath = new Uri(fullPath, "./").AbsoluteUri;
-                            parser.Parse("import = createImport(\"" + dirPath + "\")");
-                            parser.Parse("path = \"" + fullPath + "\"");
-                            parser.Parse("createImport = outer.createImport(path)");
-                            parser.Parse(fileContent);
-                            engine.InvokeValue(new ValFunction(parser.CreateImport()), [])
-                                .ContinueWith((task) =>
-                                {
-                                    val = task.Result;
-                                });
-                            return new Intrinsic.Result(new MapBuilder().AddProp("isProcessing", new ValNumber(1)).map, false);
-                        }
-                        else if (val != null)
-                        {
-                            if (isAuto)
-                            {
-                                string name = Path.GetFileName(importPath);
-
-                                TAC.Context callerContext = context.parent;
-                                callerContext.SetVar(name, val);
-                            }
-                            return new Intrinsic.Result(val);
-                        }
-                        else
-                        {
-                            return new Intrinsic.Result(p.result, false);
-                        }
-                    }
-
-
                     var matched = MatchPattern(importPath);
 
                     if (matched != null)
                     {
-                        matched.ContinueWith((task) =>
+                        ValMap map = (ValMap)matched;
+                        map.TryGetValue("module", out Value value);
+                        if (isAuto)
                         {
-                            matchedObject = task.Result;
-                        });
+                            map.TryGetValue("name", out Value n);
+                            string name = ((ValString)n).value;
 
-                        return new Intrinsic.Result(new MapBuilder().AddProp("isMatch", new ValNumber(1)).AddProp("isProcessing", new ValNumber(0)).map, false);
+                            TAC.Context callerContext = context.parent;
+                            callerContext.SetVar(name, value);
+                        }
+
+                        return new Intrinsic.Result(value);
+                    }
+                    fullPath = Engine.ResolvePath(path, importPath + ".ms");
+
+
+                    Parser parser = new();
+                    string fileContent;
+
+                    if (!Engine.IsHTTP(fullPath.AbsoluteUri))
+                    {
+                        StreamReader file = new(fullPath.AbsolutePath);
+                        fileContent = file.ReadToEnd();
                     }
                     else
                     {
-                        return new Intrinsic.Result(new MapBuilder().AddProp("isMatch", new ValNumber(0)).AddProp("isProcessing", new ValNumber(0)).map, false);
+
+                        fileContent = client.GetStringAsync(fullPath).GetAwaiter().GetResult();
                     }
+
+                    parser.errorContext = fullPath.AbsoluteUri;
+
+                    string dirPath = new Uri(fullPath, "./").AbsoluteUri;
+                    parser.Parse("import = createImport(\"" + dirPath + "\")");
+                    parser.Parse("path = \"" + fullPath + "\"");
+                    parser.Parse("createImport = outer.createImport(path)");
+                    parser.Parse(fileContent);
+
+                    var val = engine.InvokeValue(new ValFunction(parser.CreateImport()), []);
+
+                    if (isAuto)
+                    {
+                        string name = Path.GetFileName(importPath);
+
+                        TAC.Context callerContext = context.parent;
+                        callerContext.SetVar(name, val);
+                    }
+                    return new Intrinsic.Result(val);
+
 
                 })
                 .Function;
 
             return f;
         }
+
+        public static ValMap NewModule(Value module, string name)
+        {
+            return new MapBuilder(Engine.New(ModuleClass))
+                .AddProp("module", module)
+                .AddProp("name", new ValString(name))
+                .map;
+        }
+
+        public static ValMap NewModule(string name, Value module)
+        {
+            return new MapBuilder(Engine.New(ModuleClass))
+                .AddProp("module", module)
+                .AddProp("name", new ValString(name))
+                .map;
+        }
+
+        public static readonly ValMap ModuleClass = new();
+        public static readonly ValFunction NewModuleFunction = new FunctionBuilder()
+            .AddParam("module")
+            .AddParam("name")
+            .SetCallback((context, p) =>
+            {
+                return new Intrinsic.Result(
+                    NewModule(context.GetLocal("module"), context.GetLocalString("name"))
+                );
+            })
+            .Function;
         public ValFunction CreateImportFunctionFactory()
         {
             return new FunctionBuilder("createImportFactory")
@@ -147,16 +135,15 @@ namespace Kaolin.Flow.Plugins
             return new Uri(s).AbsoluteUri;
         }
 
-        public Task<Value>? MatchPattern(string s)
+        public Value? MatchPattern(string s)
         {
             ValMap map = (ValMap)engine.interpreter.GetGlobalValue("imports");
 
-            foreach (var entry in map.map)
+            map.TryGetValue(s, out Value v);
+
+            if (v != null)
             {
-                var key = ((ValString)entry.Key).value;
-
-                if (key == s) return engine.InvokeValue((ValFunction)entry.Value, [Utils.Cast(s)]);
-
+                return engine.InvokeValue((ValFunction)v, [Utils.Cast(s)]);
             }
 
             return null;
@@ -169,8 +156,9 @@ namespace Kaolin.Flow.Plugins
 
             engine.interpreter.SetGlobalValue("createImport", factory);
             engine.interpreter.SetGlobalValue("imports", new ValMap());
+            engine.interpreter.SetGlobalValue("Module", ModuleClass);
+            engine.interpreter.SetGlobalValue("newModule", NewModuleFunction);
             engine.Eval("globals.import = createImport(\"" + ToUriString(Path.GetDirectoryName(uri.LocalPath)!) + "\")\nglobals.path = \"" + uri.AbsoluteUri + "\"");
-
             engine.Eval("(version)[\"kaolin.flow\"] = \"1.0.0\"");
         }
     }

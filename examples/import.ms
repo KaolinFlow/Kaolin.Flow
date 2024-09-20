@@ -1,5 +1,5 @@
 imports["./e"] = function()
-    return import("./import/import/d")
+    return newModule(import("./import/import/d"), "e")
 end function
 
 imported = import("./import/a")
