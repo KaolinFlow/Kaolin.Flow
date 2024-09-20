@@ -47,7 +47,6 @@ namespace Kaolin.Flow.Plugins
                     }
                     fullPath = Utils.ResolvePath(path, importPath + ".ms");
 
-
                     Parser parser = new();
                     string fileContent;
 
@@ -58,7 +57,6 @@ namespace Kaolin.Flow.Plugins
                     }
                     else
                     {
-
                         fileContent = client.GetStringAsync(fullPath).GetAwaiter().GetResult();
                     }
 
@@ -158,7 +156,7 @@ namespace Kaolin.Flow.Plugins
             engine.interpreter.SetGlobalValue("imports", new ValMap());
             engine.interpreter.SetGlobalValue("Module", ModuleClass);
             engine.interpreter.SetGlobalValue("newModule", NewModuleFunction);
-            engine.Eval("globals.import = createImport(\"" + ToUriString(Path.GetDirectoryName(uri.LocalPath)!) + "\")\nglobals.path = \"" + uri.AbsoluteUri + "\"");
+            engine.Eval("globals.import = createImport(\"" + ToUriString(Path.GetDirectoryName(uri.AbsolutePath)!) + "\")\nglobals.path = \"" + uri.AbsoluteUri + "\"");
             engine.Eval("(version)[\"kaolin.flow\"] = \"1.0.0\"");
         }
     }

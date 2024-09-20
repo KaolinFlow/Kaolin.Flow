@@ -92,6 +92,8 @@ namespace Kaolin.Flow.Plugins
 
         public static string UnWrapPath(string s)
         {
+            if (Utils.HasProtocol(s)) return s[(new Uri(s).Scheme + "://").Length..];
+
             return Utils.ResolvePath(new Uri(Directory.GetCurrentDirectory()).AbsolutePath, s).AbsolutePath;
         }
 
@@ -103,7 +105,8 @@ namespace Kaolin.Flow.Plugins
 
         public override void Inject()
         {
-            Directory.SetCurrentDirectory(Directory.GetParent(UnWrapPath(engine.path))!.Name);
+            if (!IsDirectory(UnWrapPath(engine.path))) Directory.SetCurrentDirectory(Directory.GetParent(UnWrapPath(engine.path))!.Name);
+
             ValMap env = new()
             {
                 evalOverride = (Value key, out Value value) =>

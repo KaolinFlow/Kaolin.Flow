@@ -16,7 +16,7 @@ namespace Kaolin.Flow.Core
     public delegate Value FunctionPointer(params Value[] args);
     public class Utils
     {
-        public static string UnWrapFilePath(string basePath, string path)
+        public static string UnWrapPath(string basePath, string path)
         {
             return ResolvePath(new Uri(new Uri(basePath), "./").AbsolutePath, path).AbsolutePath;
         }
@@ -25,9 +25,21 @@ namespace Kaolin.Flow.Core
         {
             return path.StartsWith("https://") || path.StartsWith("http://");
         }
+        public static string RemoveProtocol(string path)
+        {
+            if (HasProtocol(path)) return path[(new Uri(path).Scheme + "://").Length..];
+
+            return path;
+        }
+        public static string GetProtocol(string path)
+        {
+            if (HasProtocol(path)) return new Uri(path).Scheme;
+
+            return "";
+        }
         public static Uri ResolvePath(string basePath, string relativePath)
         {
-            if (IsHTTP(relativePath))
+            if (HasProtocol(relativePath))
             {
                 return new Uri(relativePath);
             }
@@ -37,13 +49,19 @@ namespace Kaolin.Flow.Core
             }
             else
             {
-                return new Uri(Path.Combine(new Uri(basePath).AbsolutePath, relativePath));
+                return new Uri(GetProtocol(basePath) + "://" + Path.Combine(RemoveProtocol(basePath), relativePath));
             }
         }
 
-        public static string WrapFilePath(string s)
+        public static string WrapPath(string s)
         {
-            return "file:/" + s;
+            if (HasProtocol(s)) return s;
+
+            return "file://" + s;
+        }
+        public static bool HasProtocol(string s)
+        {
+            return IsHTTP(s) || s.StartsWith("file://");
         }
 
         public static object UnWrapValue(Value value, Engine engine)

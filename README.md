@@ -1,4 +1,4 @@
-# Kaolin.Flow (WIP)
+# Kaolin.Flow (WIP) (0.0.1)
 MiniScript's Runtime, just like Node to JavaScript :).
 
 # Why?

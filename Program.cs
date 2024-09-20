@@ -1,4 +1,5 @@
 using Kaolin.Flow;
+using Kaolin.Flow.Core;
 using Miniscript;
 
 class Program(Interpreter interpreter, string path, bool isDebugging) : Runtime(interpreter, path, isDebugging)
@@ -52,7 +53,7 @@ class Program(Interpreter interpreter, string path, bool isDebugging) : Runtime(
 
 		repl.Compile();
 
-		Runtime runtime = new(repl, Path.GetFullPath("./"), false);
+		Runtime runtime = new(repl, Utils.WrapPath(Path.GetFullPath("./")), false);
 
 		repl.implicitOutput = repl.standardOutput;
 

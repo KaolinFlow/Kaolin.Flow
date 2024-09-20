@@ -283,10 +283,9 @@ namespace Kaolin.Flow.Plugins
                         .AddParam("symbols")
                         .SetCallback((context, p) =>
                         {
-                            Assembly assembly = Assembly.LoadFrom(Utils.UnWrapFilePath(((ValString)context.parent.GetVar("path")).value, context.GetLocalString("path")));
+                            Assembly assembly = Assembly.LoadFrom(Utils.UnWrapPath(((ValString)context.parent.GetVar("path")).value, context.GetLocalString("path")));
                             ValMap symbolsDefinition = (ValMap)context.GetLocal("symbols");
                             MapBuilder resultBuilder = new();
-
                             Type[] types = assembly.GetTypes();
 
                             foreach (var entry in symbolsDefinition.map)
