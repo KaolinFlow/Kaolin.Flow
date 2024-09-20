@@ -10,6 +10,10 @@ You may run the program like how you run your script with MiniScript commandline
 2. Run using `dotnet run --property WarningLevel=0 <file.ms>`!
 3. ???<br />
 
+# Note
+1. Don't use the `path`, `imports`, `import`, `newModule`, and `createImport` to create new variables 'cause they are essentials for the functions of pre-existing plugins.
+2. `KF` map in global indicates that the code is being executed within Kaolin.Flow.
+
 # Features
 ## MiniScript's Commandline Intrinsics
 You may import `machine` and `dev`! Please refer to [this doc](https://miniscript.org/cmdline/) as an extra guideline.
