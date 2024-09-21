@@ -77,8 +77,8 @@ namespace Kaolin.Flow.Core
             if (value is ValFunction v3) return UnWrapValue(v3, engine);
             if (value is ValNull) return null!;
             if (value is ValList v5) return UnWrapValue(v5, engine);
-            if (value is ValMap v6) return UnWrapValue(v6, engine);
             if (value is ValPtr v7) return UnWrapValue(v7);
+            if (value is ValMap v6) return UnWrapValue(v6, engine);
 
             throw new Exception("Type: " + value.GetType().ToString() + " is not supported");
         }
@@ -131,11 +131,11 @@ namespace Kaolin.Flow.Core
             if (v is long v4) return Cast(v4);
             if (v is int v5) return Cast(v5);
             if (v is bool v6) return Cast(v6);
+            if (v is Ptr v10) return Cast(v10);
             if (v is FunctionPointer v7) return Cast(v7);
             if (v is MapPointer v8) return Cast(v8);
             if (v is ListPointer v9) return Cast(v9);
             if (v is null) return ValNull.instance;
-            if (v is Ptr v10) return Cast(v10);
 
             throw new Exception("Type: " + v.GetType().ToString() + " is not supported!");
         }

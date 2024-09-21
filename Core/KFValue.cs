@@ -30,7 +30,7 @@ namespace Kaolin.Flow.Core
     /// ValPtr represents a pointer value.
     /// </summary>
     /// 
-    public unsafe class ValPtr(Ptr value) : Value()
+    public unsafe class ValPtr(Ptr value) : ValMap()
     {
         public Ptr value = value;
 
