@@ -54,6 +54,7 @@ namespace Kaolin.Flow.Plugins
                             Value? val = null;
                             ValList args = (ValList)context.GetLocal("args");
                             bool isDone = false;
+                            ValMap locals = context.parent.variables;
 
                             engine.interpreter.vm.ManuallyPushCall(new FunctionBuilder().SetCallback((context, partialResult) =>
                             {
@@ -67,7 +68,7 @@ namespace Kaolin.Flow.Plugins
                                     return new Intrinsic.Result(value);
                                 }
 
-                                engine.interpreter.vm.ManuallyPushCall(cb, new ValTemp(0), args.values);
+                                engine.interpreter.vm.ManuallyPushCall(ValBFunction.Bind(cb, locals), new ValTemp(0), args.values);
 
                                 return new Intrinsic.Result(ValNull.instance, false);
                             }).Function, null!);

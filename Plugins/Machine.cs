@@ -502,7 +502,7 @@ namespace Kaolin.Flow.Plugins
                         {
                             ValFunction f = (ValFunction)context.GetLocal("callback");
 
-                            return new Intrinsic.Result(f.BindAndCopy((ValMap)context.GetLocal("map")));
+                            return new Intrinsic.Result(new ValBFunction(f.function, (ValMap)context.GetLocal("map")));
                         })
                         .Function
                 )

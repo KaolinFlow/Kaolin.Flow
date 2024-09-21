@@ -1,7 +1,8 @@
 import "error"
+import "machine"
 
 willError = function()
-    import "error"
+    print locals
     error.throw "Hello!"
 end function
 

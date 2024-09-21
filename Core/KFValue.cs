@@ -65,4 +65,24 @@ namespace Kaolin.Flow.Core
             return rhs is ValPtr ptr && ptr.userData.Value == userData.Value ? 1 : 0;
         }
     }
+    /// <summary>
+    /// ValBFunction represents a function value.
+    /// </summary>
+    /// 
+    public class ValBFunction(Function function, ValMap variables) : ValFunction(function, variables)
+    {
+        public override ValFunction BindAndCopy(ValMap contextVariables)
+        {
+            Console.WriteLine("AHA!");
+            return this;
+        }
+        public static ValFunction Bind(ValFunction function, ValMap variables)
+        {
+            return new ValBFunction(function.function, variables);
+        }
+        public static ValFunction Bind(ValFunction function)
+        {
+            return new ValBFunction(function.function, function.outerVars);
+        }
+    }
 }
