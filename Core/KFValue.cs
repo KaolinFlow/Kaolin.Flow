@@ -73,7 +73,6 @@ namespace Kaolin.Flow.Core
     {
         public override ValFunction BindAndCopy(ValMap contextVariables)
         {
-            Console.WriteLine("AHA!");
             return this;
         }
         public static ValFunction Bind(ValFunction function, ValMap variables)
