@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
+using Microsoft.VisualBasic;
 using Miniscript;
 
 namespace Kaolin.Flow.Plugins
@@ -501,22 +502,34 @@ namespace Kaolin.Flow.Plugins
                 )
                 .AddProp("exec",
                     new FunctionBuilder("exec")
-                        .AddParam("cmd")
+                        .AddParam("file", new ValString(""))
                         .AddParam("timeout", new ValNumber(30))
                         .SetCallback((context, p) =>
                         {
-                            string s = context.GetLocalString("cmd");
+                            string s = context.GetLocalString("file");
                             int t = context.GetLocalInt("timeout");
+
+                            if (s.Length == 0) return new Intrinsic.Result(
+                                new MapBuilder()
+                                    .AddProp("errors", Utils.Cast(""))
+                                    .AddProp("status", Utils.Cast(0))
+                                    .AddProp("output", Utils.Cast(""))
+                                    .map
+                            );
 
                             List<string> args = [.. s.Split(" ")];
                             string name = args[0];
 
                             args.RemoveAt(0);
+                            Process process = new()
+                            {
+                                EnableRaisingEvents = false
+                            };
+                            process.StartInfo.FileName = name;
+                            process.StartInfo.Arguments = Strings.Join([.. args]);
 
-                            Process process = Process.Start(name, string.Join(" ", args));
-
-                            process.StartInfo.UseShellExecute = true;
                             process.StartInfo.RedirectStandardError = true;
+                            process.StartInfo.RedirectStandardOutput = true;
                             process.StartInfo.UseShellExecute = false;
                             process.Start();
 
@@ -527,7 +540,13 @@ namespace Kaolin.Flow.Plugins
 
                             process.WaitForExit();
 
-                            return new Intrinsic.Result(new MapBuilder().AddProp("errors", Utils.Cast(process.StandardError.ReadToEnd())).AddProp("status", Utils.Cast(process.ExitCode)).AddProp("output", Utils.Cast(process.StandardOutput.ReadToEnd())).map);
+                            return new Intrinsic.Result(
+                                new MapBuilder()
+                                    .AddProp("errors", Utils.Cast(process.StandardError.ReadToEnd()))
+                                    .AddProp("status", Utils.Cast(process.ExitCode))
+                                    .AddProp("output", Utils.Cast(process.StandardOutput.ReadToEnd()))
+                                    .map
+                            );
                         })
                         .Function
                 )
