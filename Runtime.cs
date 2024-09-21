@@ -20,6 +20,7 @@ namespace Kaolin.Flow
             _ = new Plugins.Http(this);
             _ = new Plugins.Native(this);
             _ = new Plugins.Loader(this);
+            _ = new Plugins.Error(this);
         }
 
     }

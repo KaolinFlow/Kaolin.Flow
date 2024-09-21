@@ -4,7 +4,6 @@ using Miniscript;
 
 namespace Kaolin.Flow.Plugins
 {
-
     public class Dev(Engine engine) : Base(engine)
     {
         public override void Inject()

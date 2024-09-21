@@ -3,11 +3,24 @@ using Miniscript;
 
 namespace Kaolin.Flow.Core
 {
-    public class Engine(Interpreter interpreter, string path, bool isDebugging = false)
+    public class Engine
     {
-        public readonly Interpreter interpreter = interpreter;
-        public readonly bool isDebugging = isDebugging;
-        public string path = path;
+        public readonly ErrorHandler errorHandler = new();
+        public readonly Interpreter interpreter;
+        public readonly bool isDebugging;
+        public string path;
+
+        public Engine(Interpreter interpreter, string path, bool isDebugging = false)
+        {
+            this.path = path;
+            this.isDebugging = isDebugging;
+            this.interpreter = interpreter;
+
+            interpreter.errorOutput = (output, _) =>
+            {
+                errorHandler.Trigger(output);
+            };
+        }
 
         public void REPL(string sourceLine, double timeLimit = 60)
         {
@@ -168,7 +181,7 @@ namespace Kaolin.Flow.Core
 
         public void Run()
         {
-            if (interpreter.Running())
+            while (interpreter.Running())
             {
                 interpreter.RunUntilDone(int.MaxValue, false);
             }

@@ -487,6 +487,25 @@ namespace Kaolin.Flow.Plugins
                         })
                         .Function
                 )
+                .AddProp("bindContext",
+                    new FunctionBuilder("bindContext")
+                        .AddParam("callback",
+                            new FunctionBuilder()
+                                .SetCallback((_, _) =>
+                                {
+                                    return Intrinsic.Result.Null;
+                                })
+                                .Function
+                        )
+                        .AddParam("map", new ValMap())
+                        .SetCallback((context, p) =>
+                        {
+                            ValFunction f = (ValFunction)context.GetLocal("callback");
+
+                            return new Intrinsic.Result(f.BindAndCopy((ValMap)context.GetLocal("map")));
+                        })
+                        .Function
+                )
                 .AddProp("input",
                     new FunctionBuilder("input")
                         .AddParam("prompt", new ValString(""))

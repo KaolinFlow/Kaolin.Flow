@@ -4,7 +4,6 @@ using Miniscript;
 
 namespace Kaolin.Flow.Plugins
 {
-
     public class Module : Base
     {
         public Module(Engine engine) : base(engine)
@@ -68,6 +67,7 @@ namespace Kaolin.Flow.Plugins
                     parser.Parse("importMeta[\"path\"] = \"" + fullPath + "\"");
                     parser.Parse("importMeta[\"createImport\"] = globals.importMeta.createImport(importMeta.path)");
                     parser.Parse(fileContent);
+
 
                     var val = engine.InvokeValue(new ValFunction(parser.CreateImport()), []);
 

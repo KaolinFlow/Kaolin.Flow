@@ -7,7 +7,7 @@ Focusing solely on adding new features to make the language production-ready wit
 # How to Use
 You may run the program like how you run your script with MiniScript commandline version.
 1. Make sure to clone all the submodules.
-2. Run using `dotnet run --property WarningLevel=0 <file.ms>`!
+2. Run using `dotnet run <file.ms>`!
 3. ???<br />
 
 # Note
@@ -110,6 +110,25 @@ dll.symbols.Add.ReadPtr(ptr)
 add = dll.symbols.Add.Instance()
 
 print add
+```
+
+## Error Handler (WIP)
+Notice how I put a second import into the `willError` function. Because passing a callback to a plugin and let the plugin execute it will 'cause the function to lose its context of `locals` thus causing `error` to be undefined.
+```
+import "error"
+
+willError = function()
+    import "error"
+    error.throw "Hello!"
+end function
+
+wontError = function(a, b)
+    return a + b
+end function
+
+print "Trying..."
+print error.try(@willError)
+print error.try(@wontError, [1, 3])
 ```
 
 ## Native GUI (Work on Progress)
