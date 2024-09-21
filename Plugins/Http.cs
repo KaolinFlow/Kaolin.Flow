@@ -95,20 +95,6 @@ namespace Kaolin.Flow.Plugins
                 .AddParam("headers", new ValMap())
                 .SetCallback((context, p) =>
                 {
-                    if (p != null)
-                    {
-                        if (context.variables.map.ContainsKey(new ValString("error")))
-                        {
-                            Value errVal = context.GetVar("error", ValVar.LocalOnlyMode.Strict);
-
-                            throw (MiniscriptException)((ValMap)errVal).userData;
-                        }
-                        if (!context.variables.map.ContainsKey(new ValString("value"))) return p;
-                        Value val = context.GetVar("value", ValVar.LocalOnlyMode.Strict);
-
-                        return new Intrinsic.Result(val!, true);
-                    }
-
                     Dictionary<string, string> headers = UnWrapHeaders((ValMap)context.GetLocal("headers"));
 
                     var requestMessage = new HttpRequestMessage(method, context.GetLocalString("url"));
@@ -118,28 +104,16 @@ namespace Kaolin.Flow.Plugins
                     if (data.GetType() == typeof(ValString)) requestMessage.Content = new StringContent(UnWrapData((ValString)data));
                     if (data.GetType() == typeof(ValList)) requestMessage.Content = new ByteArrayContent(UnWrapData((ValList)data));
 
-                    client.SendAsync(requestMessage)
-                        .ContinueWith((t) =>
-                        {
-                            return WrapResponse(t.Result);
-                        })
-                        .Unwrap()
-                        .ContinueWith((t) =>
-                        {
-                            lock (context.variables)
+                    return new Intrinsic.Result(
+                        client.SendAsync(requestMessage)
+                            .ContinueWith((t) =>
                             {
-                                context.SetVar("value", t.Result);
-                            }
-                        })
-                        .ContinueWith((t) =>
-                        {
-                            lock (context.variables)
-                            {
-                                context.SetVar("error", new MapBuilder().SetUserData(t.Exception!).map);
-                            }
-                        }, TaskContinuationOptions.OnlyOnFaulted);
-
-                    return new Intrinsic.Result(ValNull.instance, false);
+                                return WrapResponse(t.Result);
+                            })
+                            .GetAwaiter()
+                            .GetResult()
+                            .Result
+                    );
                 })
                 .Function;
         }
@@ -150,47 +124,21 @@ namespace Kaolin.Flow.Plugins
                 .AddParam("headers", new ValMap())
                 .SetCallback((context, p) =>
                 {
-                    if (p != null)
-                    {
-                        if (context.variables.map.ContainsKey(new ValString("error")))
-                        {
-                            Value errVal = context.GetVar("error", ValVar.LocalOnlyMode.Strict);
-
-                            throw (MiniscriptException)((ValMap)errVal).userData;
-                        }
-                        if (!context.variables.map.ContainsKey(new ValString("value"))) return p;
-                        Value val = context.GetVar("value", ValVar.LocalOnlyMode.Strict);
-
-                        return new Intrinsic.Result(val!, true);
-                    }
-
                     Dictionary<string, string> headers = UnWrapHeaders((ValMap)context.GetLocal("headers"));
 
                     var requestMessage =
     new HttpRequestMessage(method, context.GetLocalString("url"));
 
-                    client.SendAsync(requestMessage)
-                        .ContinueWith((t) =>
-                        {
-                            return WrapResponse(t.Result);
-                        })
-                        .Unwrap()
-                        .ContinueWith((t) =>
-                        {
-                            lock (context.variables)
+                    return new Intrinsic.Result(
+                        client.SendAsync(requestMessage)
+                            .ContinueWith((t) =>
                             {
-                                context.SetVar("value", t.Result);
-                            }
-                        })
-                        .ContinueWith((t) =>
-                        {
-                            lock (context.variables)
-                            {
-                                context.SetVar("error", new MapBuilder().SetUserData(t.Exception!).map);
-                            }
-                        }, TaskContinuationOptions.OnlyOnFaulted);
-
-                    return new Intrinsic.Result(ValNull.instance, false);
+                                return WrapResponse(t.Result);
+                            })
+                            .GetAwaiter()
+                            .GetResult()
+                            .Result
+                    );
                 })
                 .Function;
         }
