@@ -113,7 +113,7 @@ print add
 ```
 
 ## Error Handler (WIP)
-Notice how I put a second import into the `willError` function. Because passing a callback to a plugin and let the plugin execute it will 'cause the function to lose its context of `locals` thus causing `error` to be undefined.
+Notice how I put a second import into the `willError` function. Because passing a callback to a plugin and let the plugin execute it will 'cause the function to lose its context of `locals` thus causing `error` to be undefined. Sometimes this error handler will break due to variable issues and such.
 ```
 import "error"
 
