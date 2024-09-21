@@ -1,5 +1,5 @@
 import "./import/b"
 
-print "Executed from: " + path + " received " + b
+print "Executed from: " + importMeta.path + " received " + b
 
 return "Hello " + b

@@ -17,14 +17,18 @@ namespace Kaolin.Flow.Plugins
         }
         public void Register(string key, Value value)
         {
-            engine.interpreter.GetGlobalValue("imports").SetElem(new ValString(key), new FunctionBuilder().SetCallback((context, p) =>
+            ((ValMap)engine.interpreter.GetGlobalValue("importMeta")).TryGetValue("imports", out Value iv);
+
+            ((ValMap)iv).SetElem(new ValString(key), new FunctionBuilder().SetCallback((context, p) =>
             {
                 return new Intrinsic.Result(Module.NewModule(value, key));
             }).Function);
         }
         public void Register(string key, IntrinsicCode code)
         {
-            engine.interpreter.GetGlobalValue("imports").SetElem(new ValString(key), new FunctionBuilder().SetCallback((context, p) =>
+            ((ValMap)engine.interpreter.GetGlobalValue("importMeta")).TryGetValue("imports", out Value iv);
+
+            ((ValMap)iv).SetElem(new ValString(key), new FunctionBuilder().SetCallback((context, p) =>
             {
                 return code(context, p);
             }).Function);

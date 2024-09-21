@@ -16,7 +16,8 @@ namespace Kaolin.Flow.Plugins
                         .AddParam("types")
                         .SetCallback((context, p) =>
                         {
-                            Assembly assembly = Assembly.LoadFrom(Utils.UnWrapPath(((ValString)context.parent.GetVar("path")).value, context.GetLocalString("path")));
+                            ((ValMap)context.parent.GetVar("importMeta")).TryGetValue("path", out Value pv);
+                            Assembly assembly = Assembly.LoadFrom(Utils.UnWrapPath(((ValString)pv).value, context.GetLocalString("path")));
                             var types = assembly.GetTypes();
 
                             foreach (var val in ((ValList)context.GetLocal("types")).values)

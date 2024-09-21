@@ -63,9 +63,10 @@ namespace Kaolin.Flow.Plugins
                     parser.errorContext = fullPath.AbsoluteUri;
 
                     string dirPath = new Uri(fullPath, "./").AbsoluteUri;
-                    parser.Parse("import = createImport(\"" + dirPath + "\")");
-                    parser.Parse("path = \"" + fullPath + "\"");
-                    parser.Parse("createImport = outer.createImport(path)");
+                    parser.Parse("import = outer.importMeta.createImport(\"" + dirPath + "\")");
+                    parser.Parse("importMeta = new outer.importMeta");
+                    parser.Parse("importMeta[\"path\"] = \"" + fullPath + "\"");
+                    parser.Parse("importMeta[\"createImport\"] = globals.importMeta.createImport(importMeta.path)");
                     parser.Parse(fileContent);
 
                     var val = engine.InvokeValue(new ValFunction(parser.CreateImport()), []);
@@ -135,9 +136,10 @@ namespace Kaolin.Flow.Plugins
 
         public Value? MatchPattern(string s)
         {
-            ValMap map = (ValMap)engine.interpreter.GetGlobalValue("imports");
+            ValMap mv = (ValMap)engine.interpreter.GetGlobalValue("importMeta");
+            mv.TryGetValue("imports", out Value im);
 
-            map.TryGetValue(s, out Value v);
+            ((ValMap)im).TryGetValue(s, out Value v);
 
             if (v != null)
             {
@@ -152,12 +154,17 @@ namespace Kaolin.Flow.Plugins
             ValFunction factory = CreateImportFunctionFactory();
             Uri uri = new(engine.path);
 
-            engine.interpreter.SetGlobalValue("createImport", factory);
-            engine.interpreter.SetGlobalValue("imports", new ValMap());
-            engine.interpreter.SetGlobalValue("Module", ModuleClass);
-            engine.interpreter.SetGlobalValue("newModule", NewModuleFunction);
-            engine.Eval("globals.import = createImport(\"" + ToUriString(Path.GetDirectoryName(uri.AbsolutePath)!) + "\")\nglobals.path = \"" + uri.AbsoluteUri + "\"");
-            engine.Eval("(version)[\"kaolin.flow\"] = \"" + ThisAssembly.AssemblyInformationalVersion + "\"");
+            engine.interpreter.SetGlobalValue("importMeta",
+                new MapBuilder()
+                    .AddProp("path", Utils.Cast(uri.AbsoluteUri))
+                    .AddProp("createImport", factory)
+                    .AddProp("newModule", NewModuleFunction)
+                    .AddProp("Module", ModuleClass)
+                    .AddProp("imports", new ValMap())
+                    .map
+            );
+            engine.Eval("globals.import = importMeta.createImport(\"" + ToUriString(Path.GetDirectoryName(uri.AbsolutePath)!) + "\")");
+            engine.interpreter.GetGlobalValue("version").SetElem(Utils.Cast("kaolin.flow"), Utils.Cast(ThisAssembly.AssemblyInformationalVersion));
         }
     }
 }
