@@ -144,11 +144,17 @@ namespace Kaolin.Flow.Core
                 Print("Unable to read: " + path);
                 return;
             }
-            Interpreter miniscript = new(file.ReadToEnd())
+            Interpreter miniscript = new()
             {
                 standardOutput = Print
             };
+            Parser parser = new()
+            {
+                errorContext = Utils.WrapPath(path)
+            };
+            parser.Parse(file.ReadToEnd());
             miniscript.Compile();
+            miniscript.vm.ManuallyPushCall(new ValFunction(parser.CreateImport()));
 
             if (dumpTAC && miniscript.vm != null)
             {
