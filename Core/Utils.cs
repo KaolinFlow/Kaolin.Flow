@@ -88,7 +88,7 @@ namespace Kaolin.Flow.Core
         }
         public static object UnWrapValue(ValPtr s)
         {
-            return s.value;
+            return s.userData;
         }
         public static double UnWrapValue(ValNumber s)
         {

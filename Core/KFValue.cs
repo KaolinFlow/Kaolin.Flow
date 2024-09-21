@@ -30,13 +30,13 @@ namespace Kaolin.Flow.Core
     /// ValPtr represents a pointer value.
     /// </summary>
     /// 
-    public unsafe class ValPtr(Ptr value) : ValMap()
+    public unsafe class ValPtr(Ptr userData) : ValMap()
     {
-        public Ptr value = value;
+        public new Ptr userData = userData;
 
         public override string ToString(TAC.Machine vm)
         {
-            return "Pointer{" + value.Value.GetType() + "}";
+            return "Pointer{" + userData.Value.GetType() + "}";
         }
 
         public override string CodeForm(TAC.Machine vm, int recursionLimit = -1)
@@ -57,12 +57,12 @@ namespace Kaolin.Flow.Core
 
         public override int Hash()
         {
-            return value.Value.GetHashCode();
+            return userData.Value.GetHashCode();
         }
 
         public override double Equality(Value rhs)
         {
-            return rhs is ValPtr ptr && ptr.value.Value == value.Value ? 1 : 0;
+            return rhs is ValPtr ptr && ptr.userData.Value == userData.Value ? 1 : 0;
         }
     }
 }
