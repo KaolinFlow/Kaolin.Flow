@@ -46,14 +46,14 @@ print from_http
 ## Import Map
 ```
 //will only match the exact string! (please contribute to make it better)
-imports["./e"] = function(path)
-    return newModule(import("./f"), "e")
+importMeta.imports["./e"] = function(path)
+    return importMeta.newModule(import("./f"), "e")
 end function 
 
 import "e"
 
-imports["./f"] = function()
-    return newModule("Hello!", "f")
+importMeta.imports["./f"] = function()
+    return importMeta.newModule("Hello!", "f")
 end function
 
 import "f"
