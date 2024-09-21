@@ -27,8 +27,6 @@ namespace Kaolin.Flow.Plugins
                             ValMap mv = (ValMap)context.GetVar("importMeta");
                             mv.TryGetValue("path", out Value v);
 
-
-
                             return new Intrinsic.Result(engine.EvalValue(context.GetLocalString("code"), ((ValString)v).value + ":" + context.parent.GetSourceLoc().ToString()));
                         })
                         .Function
