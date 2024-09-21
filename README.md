@@ -11,7 +11,7 @@ You may run the program like how you run your script with MiniScript commandline
 3. ???<br />
 
 # Note
-1. Don't use the `path`, `imports`, `import`, `newModule`, and `createImport` to create new variables 'cause they are essentials for the functions of pre-existing plugins.
+1. Don't use the `import` and `importMeta` to create new variables 'cause they are essentials for the functions of pre-existing plugins.
 2. `KF` map in global indicates that the code is being executed within Kaolin.Flow.
 
 # Features
