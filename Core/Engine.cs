@@ -208,18 +208,22 @@ namespace Kaolin.Flow.Core
             return newMap;
         }
 
-        public void Eval(string s)
+        public void Eval(string s, string path = "")
         {
-            Parser parser = new();
-
+            Parser parser = new()
+            {
+                errorContext = (path.Length > 0 ? path + " " : "") + "eval"
+            };
             parser.Parse(s);
 
             Invoke(new ValFunction(parser.CreateImport()), []);
         }
-        public Value EvalValue(string s)
+        public Value EvalValue(string s, string path = "")
         {
-            Parser parser = new();
-
+            Parser parser = new()
+            {
+                errorContext = (path.Length > 0 ? path + " " : "") + "eval"
+            };
             parser.Parse(s);
 
             return InvokeValue(new ValFunction(parser.CreateImport()), []);

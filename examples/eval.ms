@@ -1,3 +1,3 @@
 import "dev"
 
-print dev.eval("return 0")
+print dev.eval("return 1")
