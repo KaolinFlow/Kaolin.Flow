@@ -90,8 +90,8 @@ namespace Kaolin.Flow.Plugins
         public ValFunction CreateComplexHTTPFunction(string name, HttpMethod method)
         {
             return new FunctionBuilder(name)
-                .AddParam("url")
-                .AddParam("data")
+                .AddParam("url", new ValString("https://1.1.1.1"))
+                .AddParam("data", new ValList())
                 .AddParam("headers", new ValMap())
                 .SetCallback((context, p) =>
                 {
@@ -120,7 +120,7 @@ namespace Kaolin.Flow.Plugins
         public ValFunction CreateSimpleHTTPFunction(string name, HttpMethod method)
         {
             return new FunctionBuilder(name)
-                .AddParam("url")
+                .AddParam("url", new ValString("https://1.1.1.1"))
                 .AddParam("headers", new ValMap())
                 .SetCallback((context, p) =>
                 {

@@ -247,7 +247,7 @@ namespace Kaolin.Flow.Plugins
 
                 for (int i = 0; i < args.values.Count; i++)
                 {
-                    functionBuilder.AddParam("arg" + i);
+                    functionBuilder.AddParam("arg" + i, ValNull.instance);
                 }
 
                 functionBuilder.SetCallback(callback);
@@ -265,7 +265,7 @@ namespace Kaolin.Flow.Plugins
                 .AddProp("NativeDLL", NativeDLL)
                 .AddProp("retDef",
                     new FunctionBuilder("retDef")
-                        .AddParam("type")
+                        .AddParam("type", new ValString(TypeAuto))
                         .AddParam("definition", ValNull.instance)
                         .SetCallback((context, p) =>
                             new Intrinsic.Result(
@@ -279,8 +279,8 @@ namespace Kaolin.Flow.Plugins
                 )
                 .AddProp("import",
                     new FunctionBuilder("import")
-                        .AddParam("path")
-                        .AddParam("symbols")
+                        .AddParam("path", new ValString(""))
+                        .AddParam("symbols", new ValMap())
                         .SetCallback((context, p) =>
                         {
                             ((ValMap)context.parent.GetVar("importMeta")).TryGetValue("path", out Value pv);

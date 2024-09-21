@@ -12,7 +12,7 @@ namespace Kaolin.Flow.Plugins
             ValMap map = new MapBuilder()
                 .AddProp("bytesToString",
                     new FunctionBuilder("bytesToString")
-                        .AddParam("bytes")
+                        .AddParam("bytes", new ValList())
                         .SetCallback((context, p) =>
                         {
                             return new Intrinsic.Result(System.Text.Encoding.UTF8.GetString(Http.UnWrapData((ValList)context.GetLocal("bytes"))));
@@ -21,7 +21,7 @@ namespace Kaolin.Flow.Plugins
                 )
                 .AddProp("eval",
                     new FunctionBuilder("eval")
-                        .AddParam("code")
+                        .AddParam("code", new ValString(""))
                         .SetCallback((context, p) =>
                         {
                             ValMap mv = (ValMap)context.GetVar("importMeta");

@@ -152,7 +152,7 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("setdir",
                             new FunctionBuilder("setdir")
-                                .AddParam("path")
+                                .AddParam("path", new ValString(""))
                                 .SetCallback((context, p) =>
                                 {
                                     string path = UnWrapPath(context.GetLocalString("path"));
@@ -167,7 +167,7 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("makedir",
                             new FunctionBuilder("makedir")
-                                .AddParam("path")
+                                .AddParam("path", new ValString(""))
                                 .SetCallback((context, p) =>
                                 {
                                     Directory.CreateDirectory(UnWrapPath(context.GetLocalString("path")));
@@ -207,7 +207,7 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("name",
                             new FunctionBuilder("name")
-                                .AddParam("path")
+                                .AddParam("path", new ValString(""))
                                 .SetCallback((context, p) =>
                                 {
                                     return new Intrinsic.Result(Path.GetFileName(UnWrapPath(context.GetLocalString("path"))));
@@ -216,7 +216,7 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("parent",
                             new FunctionBuilder("parent")
-                                .AddParam("path")
+                                .AddParam("path", new ValString(""))
                                 .SetCallback((context, p) =>
                                 {
                                     return new Intrinsic.Result(Directory.GetParent(UnWrapPath(context.GetLocalString("path")))!.Name);
@@ -225,7 +225,7 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("exists",
                             new FunctionBuilder("exists")
-                                .AddParam("path")
+                                .AddParam("path", new ValString(""))
                                 .SetCallback((context, p) =>
                                 {
                                     var path = UnWrapPath(context.GetLocalString("path"));
@@ -245,7 +245,7 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("readLines",
                             new FunctionBuilder("readLines")
-                                .AddParam("path")
+                                .AddParam("path", new ValString(""))
                                 .SetCallback((context, p) =>
                                 {
                                     string path = UnWrapPath(context.GetLocalString("path"));
@@ -262,8 +262,8 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("writeLines",
                             new FunctionBuilder("writeLines")
-                                .AddParam("path")
-                                .AddParam("lines")
+                                .AddParam("path", new ValString(""))
+                                .AddParam("lines", new ValList())
                                 .SetCallback((context, p) =>
                                 {
                                     string path = UnWrapPath(context.GetLocalString("path"));
@@ -283,7 +283,7 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("delete",
                             new FunctionBuilder("delete")
-                                .AddParam("path")
+                                .AddParam("path", new ValString(""))
                                 .AddParam("isRecursive", Utils.Cast(false))
                                 .SetCallback((context, p) =>
                                 {
@@ -298,8 +298,8 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("child",
                             new FunctionBuilder("child")
-                                .AddParam("basePath")
-                                .AddParam("subPath")
+                                .AddParam("basePath", new ValString(""))
+                                .AddParam("subPath", new ValString(""))
                                 .SetCallback((context, p) =>
                                 {
                                     return new Intrinsic.Result(Utils.ResolvePath(context.GetLocalString("basePath"), context.GetLocalString("subPath")).AbsoluteUri);
@@ -308,8 +308,8 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("move",
                             new FunctionBuilder("move")
-                                .AddParam("oldPath")
-                                .AddParam("newPath")
+                                .AddParam("oldPath", new ValString(""))
+                                .AddParam("newPath", new ValString(""))
                                 .SetCallback((context, p) =>
                                 {
                                     string oldPath = UnWrapPath(context.GetLocalString("oldPath"));
@@ -327,8 +327,8 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("copy",
                             new FunctionBuilder("copy")
-                                .AddParam("sourceFilePath")
-                                .AddParam("targetFilePath")
+                                .AddParam("sourceFilePath", new ValString(""))
+                                .AddParam("targetFilePath", new ValString(""))
                                 .SetCallback((context, p) =>
                                 {
                                     string sourceFilePath = UnWrapPath(context.GetLocalString("sourceFilePath"));
@@ -346,7 +346,7 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("info",
                             new FunctionBuilder("info")
-                                .AddParam("path")
+                                .AddParam("path", new ValString(""))
                                 .SetCallback((context, p) =>
                                 {
                                     string path = UnWrapPath(context.GetLocalString("path"));
@@ -379,7 +379,7 @@ namespace Kaolin.Flow.Plugins
                         )
                         .AddProp("open",
                             new FunctionBuilder("open")
-                                .AddParam("path")
+                                .AddParam("path", new ValString(""))
                                 .AddParam("mode", "rw+")
                                 .SetCallback((context, p) =>
                                 {
@@ -431,7 +431,7 @@ namespace Kaolin.Flow.Plugins
                                             )
                                             .AddProp("writeLine",
                                                 new FunctionBuilder("writeLine")
-                                                    .AddParam("content")
+                                                    .AddParam("content", new ValString(""))
                                                     .SetCallback((context, p) =>
                                                     {
                                                         fileStream.Write(Encoding.ASCII.GetBytes(context.GetLocalString("content") + "\n"));
@@ -451,7 +451,7 @@ namespace Kaolin.Flow.Plugins
                                             )
                                             .AddProp("write",
                                                 new FunctionBuilder("write")
-                                                    .AddParam("content")
+                                                    .AddParam("content", new ValString(""))
                                                     .SetCallback((context, p) =>
                                                     {
                                                         fileStream.Write(Encoding.ASCII.GetBytes(context.GetLocalString("content")));

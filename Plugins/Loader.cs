@@ -12,8 +12,8 @@ namespace Kaolin.Flow.Plugins
             ValMap map = new MapBuilder()
                 .AddProp("load",
                     new FunctionBuilder("load")
-                        .AddParam("path")
-                        .AddParam("types")
+                        .AddParam("path", new ValString(""))
+                        .AddParam("types", new ValList())
                         .SetCallback((context, p) =>
                         {
                             ((ValMap)context.parent.GetVar("importMeta")).TryGetValue("path", out Value pv);

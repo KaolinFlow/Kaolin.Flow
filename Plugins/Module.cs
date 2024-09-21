@@ -21,7 +21,7 @@ namespace Kaolin.Flow.Plugins
         public ValFunction CreateImportFunction(string path)
         {
             ValFunction f = new FunctionBuilder("createImport")
-                .AddParam("path")
+                .AddParam("path", new ValString(path))
                 .AddParam("auto", new ValNumber(1))
                 .SetCallback((context, p) =>
                 {
@@ -105,8 +105,8 @@ namespace Kaolin.Flow.Plugins
 
         public static readonly ValMap ModuleClass = new();
         public static readonly ValFunction NewModuleFunction = new FunctionBuilder()
-            .AddParam("module")
-            .AddParam("name")
+            .AddParam("module", ValNull.instance)
+            .AddParam("name", new ValString(""))
             .SetCallback((context, p) =>
             {
                 return new Intrinsic.Result(
@@ -117,7 +117,7 @@ namespace Kaolin.Flow.Plugins
         public ValFunction CreateImportFunctionFactory()
         {
             return new FunctionBuilder("createImportFactory")
-                .AddParam("path")
+                .AddParam("path", new ValString(engine.path))
                 .SetCallback((context, p) =>
                 {
                     string path = context.GetLocalString("path");
