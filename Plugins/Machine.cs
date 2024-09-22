@@ -487,8 +487,26 @@ namespace Kaolin.Flow.Plugins
                         })
                         .Function
                 )
-                .AddProp("bindContext",
-                    new FunctionBuilder("bindContext")
+                .AddProp("getOuter",
+                    new FunctionBuilder("getOuter")
+                        .AddParam("callback",
+                            new FunctionBuilder()
+                                .SetCallback((_, _) =>
+                                {
+                                    return Intrinsic.Result.Null;
+                                })
+                                .Function
+                        )
+                        .SetCallback((context, p) =>
+                        {
+                            ValFunction f = (ValFunction)context.GetLocal("callback");
+
+                            return new Intrinsic.Result(f.outerVars);
+                        })
+                        .Function
+                )
+                .AddProp("bindOuter",
+                    new FunctionBuilder("bindOuter")
                         .AddParam("callback",
                             new FunctionBuilder()
                                 .SetCallback((_, _) =>
@@ -503,6 +521,25 @@ namespace Kaolin.Flow.Plugins
                             ValFunction f = (ValFunction)context.GetLocal("callback");
 
                             return new Intrinsic.Result(new ValBFunction(f.function, (ValMap)context.GetLocal("map")));
+                        })
+                        .Function
+                )
+                .AddProp("setOuter",
+                    new FunctionBuilder("setOuter")
+                        .AddParam("callback",
+                            new FunctionBuilder()
+                                .SetCallback((_, _) =>
+                                {
+                                    return Intrinsic.Result.Null;
+                                })
+                                .Function
+                        )
+                        .AddParam("map", new ValMap())
+                        .SetCallback((context, p) =>
+                        {
+                            ValFunction f = (ValFunction)context.GetLocal("callback");
+
+                            return new Intrinsic.Result(f.BindAndCopy((ValMap)context.GetLocal("map")));
                         })
                         .Function
                 )
