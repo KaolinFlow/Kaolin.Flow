@@ -155,7 +155,7 @@ namespace Kaolin.Flow.Core
             if (file == null)
             {
                 Print("Unable to read: " + path);
-                return;
+                return null;
             }
             Interpreter miniscript = new()
             {
