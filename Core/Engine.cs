@@ -149,7 +149,7 @@ namespace Kaolin.Flow.Core
             if (sourceLines != null) Test(sourceLines, testLineNum, expectedOutput!, outputLineNum);
             Print("\nIntegration tests complete.\n");
         }
-        public static void RunFile(string path, bool isDebugging = false, bool dumpTAC = false)
+        public static Engine RunFile(string path, bool isDebugging = false, bool dumpTAC = false)
         {
             StreamReader file = new(path);
             if (file == null)
@@ -177,6 +177,8 @@ namespace Kaolin.Flow.Core
             Runtime core = new(miniscript, Utils.WrapPath(path), isDebugging);
 
             core.Run();
+
+            return core;
         }
 
         public void Run()
