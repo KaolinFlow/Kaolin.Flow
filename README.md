@@ -131,6 +131,9 @@ print error.try(@willError)
 print error.try(@wontError, [1, 3])
 ```
 
+## Bind Outer Variables
+`setOuter(callback, outer)` will set the outer variables of a callback but still let the function's outer to be changeable while the `bindOuter` make it unchangeable. Get the outer of a function with `getOuter(callback)`.
+
 ## Native GUI (Work on Progress)
 
 ## WebSocket (Work on Progress)

@@ -515,12 +515,12 @@ namespace Kaolin.Flow.Plugins
                                 })
                                 .Function
                         )
-                        .AddParam("map", new ValMap())
+                        .AddParam("outer", new ValMap())
                         .SetCallback((context, p) =>
                         {
                             ValFunction f = (ValFunction)context.GetLocal("callback");
 
-                            return new Intrinsic.Result(new ValBFunction(f.function, (ValMap)context.GetLocal("map")));
+                            return new Intrinsic.Result(new ValBFunction(f.function, (ValMap)context.GetLocal("outer")));
                         })
                         .Function
                 )
@@ -534,12 +534,12 @@ namespace Kaolin.Flow.Plugins
                                 })
                                 .Function
                         )
-                        .AddParam("map", new ValMap())
+                        .AddParam("outer", new ValMap())
                         .SetCallback((context, p) =>
                         {
                             ValFunction f = (ValFunction)context.GetLocal("callback");
 
-                            return new Intrinsic.Result(f.BindAndCopy((ValMap)context.GetLocal("map")));
+                            return new Intrinsic.Result(f.BindAndCopy((ValMap)context.GetLocal("outer")));
                         })
                         .Function
                 )
