@@ -1,3 +1,4 @@
+using System.Reflection;
 using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
 using Miniscript;
@@ -164,7 +165,17 @@ namespace Kaolin.Flow.Plugins
                     .map
             );
             engine.Eval("globals.import = importMeta.createImport(\"" + ToUriString(Path.GetDirectoryName(uri.AbsolutePath)!) + "\")");
-            engine.interpreter.GetGlobalValue("version").SetElem(Utils.Cast("kaolin.flow"), Utils.Cast(ThisAssembly.AssemblyInformationalVersion));
+            engine.interpreter.GetGlobalValue("version").SetElem(Utils.Cast("kaolin.flow"), Utils.Cast("v0.3.0-alpha1"));
+        }
+    }
+
+    [System.AttributeUsage(System.AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
+    sealed class AssemblyVersionAttribute : System.Attribute
+    {
+        public string AssemblyVersion { get; }
+        public AssemblyVersionAttribute(string assemblyVersion)
+        {
+            this.AssemblyVersion = assemblyVersion;
         }
     }
 }

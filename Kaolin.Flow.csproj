@@ -12,9 +12,6 @@
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute> 
     <StartupObject>Program</StartupObject>
     <Configuration>Release</Configuration>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
 </Project>

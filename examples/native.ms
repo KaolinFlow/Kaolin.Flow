@@ -4,7 +4,7 @@ symbols = { "Add": { "WritePtr": { "args": [], "return": native.retDef(native.Ty
 
 symbols["Add"]["Instance"] = { "args": [], "return": native.retDef(native.Type.Instance, symbols["Add"]) }
 
-dll = native.import("./native/bin/Debug/net8.0/native.dll", symbols)
+dll = native.import("./native/bin/Release/net8.0/native.dll", symbols)
 
 print dll
 print dll.symbols
