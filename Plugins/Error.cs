@@ -68,7 +68,7 @@ namespace Kaolin.Flow.Plugins
                                     return new Intrinsic.Result(value);
                                 }
 
-                                engine.interpreter.vm.ManuallyPushCall(ValBFunction.Bind(cb, locals), new ValTemp(0), args.values);
+                                engine.interpreter.vm.ManuallyPushCall(cb, new ValTemp(0), args.values);
 
                                 return new Intrinsic.Result(ValNull.instance, false);
                             }).Function, null!);

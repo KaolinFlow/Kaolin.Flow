@@ -190,7 +190,7 @@ namespace Kaolin.Flow.Core
 
         public void Invoke(ValFunction function, Value[] arguments)
         {
-            interpreter.vm.ManuallyPushCall(ValBFunction.Bind(function), null!, [.. arguments]);
+            interpreter.vm.ManuallyPushCall(function, null!, [.. arguments]);
         }
         public Value InvokeValue(ValFunction function, Value[] arguments)
         {
@@ -207,7 +207,7 @@ namespace Kaolin.Flow.Core
                     return new Intrinsic.Result(value);
                 }
 
-                interpreter.vm.ManuallyPushCall(ValBFunction.Bind(function), new ValTemp(0), [.. arguments]);
+                interpreter.vm.ManuallyPushCall(function, new ValTemp(0), [.. arguments]);
 
                 return new Intrinsic.Result(ValNull.instance, false);
             }).Function, null!);
