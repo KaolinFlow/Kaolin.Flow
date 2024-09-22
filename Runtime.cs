@@ -4,7 +4,7 @@ using Miniscript;
 
 namespace Kaolin.Flow
 {
-    class Runtime : Engine
+    public class Runtime : Engine
     {
         public Runtime(Interpreter interpreter, string path, bool isDebugging) : base(interpreter, path, isDebugging)
         {
