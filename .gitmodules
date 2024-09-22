@@ -1,3 +1,3 @@
 [submodule "miniscript"]
 	path = miniscript
-	url = https://github.com/JoeStrout/miniscript
+	url = https://github.com/symful/miniscript
