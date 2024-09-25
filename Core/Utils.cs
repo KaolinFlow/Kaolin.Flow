@@ -1,7 +1,8 @@
 using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
 using Miniscript;
-
+using System.Collections.Generic;
+using System;
 
 namespace Kaolin.Flow.Core
 {
@@ -123,7 +124,7 @@ namespace Kaolin.Flow.Core
                 return engine.InvokeValue(val, args);
             };
         }
-        public static unsafe Value Cast(object v)
+        public static Value Cast(object v)
         {
             if (v is string v3) return Cast(v3);
             if (v is double v2) return Cast(v2);

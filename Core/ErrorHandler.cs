@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Kaolin.Flow.Core
 {
     public class ErrorHandler

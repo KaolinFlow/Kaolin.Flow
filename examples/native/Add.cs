@@ -16,7 +16,7 @@ class Add
     {
         Console.WriteLine(ptr.Value);
     }
-    public static unsafe Ptr WritePtr()
+    public static Ptr WritePtr()
     {
         return new AnyPtr(new Add());
     }

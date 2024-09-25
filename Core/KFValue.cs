@@ -10,7 +10,7 @@ namespace Kaolin.Flow.Core
             get; set;
         }
     }
-    public unsafe class AnyPtr(object val) : Ptr()
+    public class AnyPtr(object val) : Ptr()
     {
         object v = val;
 
