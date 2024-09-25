@@ -152,16 +152,11 @@ namespace Kaolin.Flow.Plugins
             }
         }
 
-        public static string ResolveType(Type type)
-        {
-            return "unimplemented";
-        }
-
         public IntrinsicCode CreateCallbackInstance(Type type, ValMap symbolsDefinition, ValMap parentDefinition)
         {
             symbolsDefinition.TryGetValue("args", out Value _def);
 
-            var definitions = (ValList)_def;
+            ValList definitions = (ValList)_def;
 
             return (context, p) =>
             {
@@ -172,9 +167,13 @@ namespace Kaolin.Flow.Plugins
                     args.Add(UnWrapValue(context.GetLocal("arg" + i), ((ValString)definitions.values[i]).value));
                 }
 
-                object o = Activator.CreateInstance(type, [.. args])!;
+                object instance = Activator.CreateInstance(type, [.. args])!;
 
-                return new Intrinsic.Result(new MapBuilder(WrapType(o.GetType(), parentDefinition, o)).SetUserData(o).map);
+                return new Intrinsic.Result(
+                    new MapBuilder(WrapType(instance.GetType(), parentDefinition, instance))
+                        .SetUserData(instance)
+                        .map
+                );
             };
         }
 
