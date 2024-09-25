@@ -3,6 +3,7 @@ using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
 using Miniscript;
 using System;
+using System.Collections.Generic;
 
 namespace Kaolin.Flow.Plugins
 {
