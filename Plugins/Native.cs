@@ -142,9 +142,9 @@ namespace Kaolin.Flow.Plugins
             }
             else if (type == TypeInstance)
             {
-                typeMap.TryGetValue("definition", out Value m);
+                typeMap.TryGetValue("definition", out Value map);
 
-                return new MapBuilder(WrapType(value.GetType(), (ValMap)m!, null!)).SetUserData(value).map;
+                return new MapBuilder(WrapType(value.GetType(), (ValMap)map!, null!)).SetUserData(value).map;
             }
             else
             {
