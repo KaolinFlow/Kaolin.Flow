@@ -20,6 +20,8 @@ namespace Kaolin.Flow.Core
             {
                 errorHandler.Trigger(output);
             };
+
+            Inject();
         }
 
         public void REPL(string sourceLine, double timeLimit = 60)

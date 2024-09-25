@@ -2,12 +2,8 @@ using Kaolin.Flow;
 using Kaolin.Flow.Core;
 using Miniscript;
 
-class Program : Engine
+class Program(Interpreter interpreter, string path, bool isDebugging) : Engine(interpreter, path, isDebugging)
 {
-	public Program(Interpreter interpreter, string path, bool isDebugging) : base(interpreter, path, isDebugging)
-	{
-		Inject();
-	}
 	public static void Main(string[] args)
 	{
 		if (args.Length > 0 && args[0] == "--test")

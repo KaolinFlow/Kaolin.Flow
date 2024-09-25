@@ -16,10 +16,11 @@ namespace Kaolin.Flow.Plugins
                         .AddParam("error", new ValString(""))
                         .SetCallback((context, p) =>
                         {
-                            string err = context.GetLocalString("error");
-                            RuntimeException exc = new(err);
-                            exc.location = context.GetSourceLoc() ?? context.parent.GetSourceLoc();
-                            engine.interpreter.errorOutput.Invoke(exc.Description(), true);
+                            string error = context.GetLocalString("error");
+                            RuntimeException exception = new(error);
+                            exception.location = context.GetSourceLoc() ?? context.parent.GetSourceLoc();
+                            engine.interpreter.errorOutput.Invoke(exception.Description(), true);
+                            context.parent.JumpToEnd();
 
                             return Intrinsic.Result.Null;
                         })
@@ -38,60 +39,64 @@ namespace Kaolin.Flow.Plugins
                         .AddParam("args", new ValList())
                         .SetCallback((context, p) =>
                         {
-                            var cb = (ValFunction)context.GetLocal("callback");
-                            ErrorHandler.Callback errCb = null!;
-                            string? err = null;
-
-                            errCb = (error) =>
-                            {
-                                engine.errorHandler.Off(errCb);
-                                err = error;
-
-                                return true;
-                            };
-
-                            engine.errorHandler.On(errCb);
-                            Value? val = null;
+                            ValFunction callback = (ValFunction)context.GetLocal("callback");
+                            ErrorHandler.Callback errorCallback = null!;
+                            List<Value> errors = [];
                             ValList args = (ValList)context.GetLocal("args");
-                            bool isDone = false;
                             ValMap locals = context.parent.variables;
+                            Value value = null!;
+                            bool isDone = false;
 
                             engine.interpreter.vm.ManuallyPushCall(new FunctionBuilder().SetCallback((context, partialResult) =>
                             {
-                                if (err != null) return Intrinsic.Result.Null;
                                 if (partialResult != null)
                                 {
-                                    Value value = context.GetTemp(0);
-                                    val = value;
+                                    Value returnValue = context.GetTemp(0);
+                                    value = returnValue;
                                     isDone = true;
 
                                     return new Intrinsic.Result(value);
                                 }
 
-                                engine.interpreter.vm.ManuallyPushCall(cb, new ValTemp(0), args.values);
-
+                                engine.interpreter.vm.ManuallyPushCall(callback, new ValTemp(0), [.. args.values]);
                                 return new Intrinsic.Result(ValNull.instance, false);
                             }).Function, null!);
-                            while (engine.interpreter.Running() && val == null && err == null && !isDone)
+
+                            TAC.Context callbackContext = engine.interpreter.vm.GetTopContext();
+                            errorCallback = (error) =>
                             {
-                                try
-                                {
-                                    engine.interpreter.vm.Step();
-                                }
-                                catch (Exception e)
-                                {
-                                    err = "Internal Error: " + e.ToString();
+                                errors.Add(new ValString(error));
+                                callbackContext.ClearCodeAndTemps();
 
-                                    engine.errorHandler.Trigger(err);
-                                }
+                                isDone = true;
+
+                                return true;
+                            };
+
+                            engine.errorHandler.On(errorCallback);
+
+                            /*try
+                            {*/
+                            while (engine.interpreter.Running() && !isDone)
+                            {
+                                engine.interpreter.vm.Step();
                             }
+                            /*}
+                            catch (Exception exception)
+                            {
+                                string error = "Internal Error: " + exception.ToString();
 
+                                errors.Add(new ValString(error));
+                                engine.errorHandler.Trigger(error);
+                            }*/
+
+                            engine.errorHandler.Off(errorCallback);
                             return new Intrinsic.Result(
                                 new MapBuilder(Engine.New(ErrorClass))
-                                    .AddProp("isError", Utils.Cast(err != null))
-                                    .AddProp("isValue", Utils.Cast(val != null))
-                                    .AddProp("value", val ?? ValNull.instance)
-                                    .AddProp("error", err != null ? new ValString(err) : ValNull.instance)
+                                    .AddProp("isError", Utils.Cast(errors.Count != 0))
+                                    .AddProp("isValue", Utils.Cast(value != null))
+                                    .AddProp("value", value ?? ValNull.instance)
+                                    .AddProp("error", new ValList(errors))
                                     .map
                             );
                         })
