@@ -174,7 +174,7 @@ namespace Kaolin.Flow.Core
                 miniscript.vm.DumpTopContext();
             }
 
-            Runtime core = new(miniscript, Utils.WrapPath(path), isDebugging);
+            Engine core = new(miniscript, Utils.WrapPath(path), isDebugging);
 
             core.Run();
 
