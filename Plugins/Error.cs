@@ -41,7 +41,7 @@ namespace Kaolin.Flow.Plugins
                         {
                             ValFunction callback = (ValFunction)context.GetLocal("callback");
                             ErrorHandler.Callback errorCallback = null!;
-                            List<Value> errors = [];
+                            Value error = null!;
                             ValList args = (ValList)context.GetLocal("args");
                             ValMap locals = context.parent.variables;
                             Value value = null!;
@@ -63,40 +63,45 @@ namespace Kaolin.Flow.Plugins
                             }).Function, null!);
 
                             TAC.Context callbackContext = engine.interpreter.vm.GetTopContext();
-                            errorCallback = (error) =>
+                            errorCallback = (errorMessage) =>
                             {
-                                errors.Add(new ValString(error));
-                                callbackContext.ClearCodeAndTemps();
-
+                                error = new ValString(errorMessage);
                                 isDone = true;
+
+                                callbackContext.ClearCodeAndTemps();
 
                                 return true;
                             };
 
                             engine.errorHandler.On(errorCallback);
 
-                            /*try
-                            {*/
-                            while (engine.interpreter.Running() && !isDone)
+                            try
                             {
-                                engine.interpreter.vm.Step();
+                                while (engine.interpreter.Running() && !isDone)
+                                {
+                                    engine.interpreter.vm.Step();
+                                }
                             }
-                            /*}
                             catch (Exception exception)
                             {
-                                string error = "Internal Error: " + exception.ToString();
+                                engine.errorHandler.Trigger(exception.ToString());
+                            }
 
-                                errors.Add(new ValString(error));
-                                engine.errorHandler.Trigger(error);
-                            }*/
+                            TAC.Context ctx;
+
+                            if ((ctx = engine.interpreter.vm.GetTopContext()).parent == callbackContext)
+                            {
+                                ctx.lineNum = ctx.code.Count - 1;
+                                engine.interpreter.vm.Step();
+                            }
 
                             engine.errorHandler.Off(errorCallback);
                             return new Intrinsic.Result(
                                 new MapBuilder(Engine.New(ErrorClass))
-                                    .AddProp("isError", Utils.Cast(errors.Count != 0))
+                                    .AddProp("isError", Utils.Cast(error != null))
                                     .AddProp("isValue", Utils.Cast(value != null))
                                     .AddProp("value", value ?? ValNull.instance)
-                                    .AddProp("error", new ValList(errors))
+                                    .AddProp("error", error ?? ValNull.instance)
                                     .map
                             );
                         })
