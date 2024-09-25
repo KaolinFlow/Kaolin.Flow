@@ -85,15 +85,17 @@ namespace Kaolin.Flow.Plugins
                             catch (Exception exception)
                             {
                                 engine.errorHandler.Trigger(exception.ToString());
+
+                                TAC.Context ctx;
+
+                                if ((ctx = engine.interpreter.vm.GetTopContext()).parent == callbackContext)
+                                {
+                                    ctx.lineNum = ctx.code.Count - 1;
+                                    engine.interpreter.vm.Step();
+                                }
                             }
 
-                            TAC.Context ctx;
 
-                            if ((ctx = engine.interpreter.vm.GetTopContext()).parent == callbackContext)
-                            {
-                                ctx.lineNum = ctx.code.Count - 1;
-                                engine.interpreter.vm.Step();
-                            }
 
                             engine.errorHandler.Off(errorCallback);
                             return new Intrinsic.Result(
