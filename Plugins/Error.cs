@@ -95,8 +95,6 @@ namespace Kaolin.Flow.Plugins
                                 }
                             }
 
-
-
                             engine.errorHandler.Off(errorCallback);
                             return new Intrinsic.Result(
                                 new MapBuilder(Engine.New(ErrorClass))
