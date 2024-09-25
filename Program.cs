@@ -2,8 +2,12 @@ using Kaolin.Flow;
 using Kaolin.Flow.Core;
 using Miniscript;
 
-class Program(Interpreter interpreter, string path, bool isDebugging) : Runtime(interpreter, path, isDebugging)
+class Program : Engine
 {
+	public Program(Interpreter interpreter, string path, bool isDebugging) : base(interpreter, path, isDebugging)
+	{
+		Inject();
+	}
 	public static void Main(string[] args)
 	{
 		if (args.Length > 0 && args[0] == "--test")
@@ -53,19 +57,19 @@ class Program(Interpreter interpreter, string path, bool isDebugging) : Runtime(
 
 		repl.Compile();
 
-		Runtime runtime = new(repl, Utils.WrapPath(Path.GetFullPath("./")), false);
+		Engine engine = new(repl, Utils.WrapPath(Path.GetFullPath("./")), false);
 
 		repl.implicitOutput = repl.standardOutput;
 
 		Console.WriteLine("Kaolin.Flow (MiniScript)");
-		runtime.REPL("version");
+		engine.REPL("version");
 
 		while (true)
 		{
 			Console.Write(repl.NeedMoreInput() ? ">>> " : "> ");
 			string? inp = Console.ReadLine();
 			if (inp == null) break;
-			runtime.REPL(inp);
+			engine.REPL(inp);
 		}
 
 		Print("Bye!");
