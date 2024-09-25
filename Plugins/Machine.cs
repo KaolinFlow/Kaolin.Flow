@@ -5,6 +5,7 @@ using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
 using Microsoft.VisualBasic;
 using Miniscript;
+using System.IO;
 
 namespace Kaolin.Flow.Plugins
 {

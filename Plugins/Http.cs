@@ -1,7 +1,10 @@
 using System.Net.Http.Headers;
 using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
+using System.Collections.Generic;
+using System.Net.Http;
 using Miniscript;
+using System.Threading.Tasks;
 
 namespace Kaolin.Flow.Plugins
 {

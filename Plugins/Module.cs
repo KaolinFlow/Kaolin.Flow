@@ -2,6 +2,7 @@ using System.Reflection;
 using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
 using Miniscript;
+using System.Net.Http;
 
 namespace Kaolin.Flow.Plugins
 {
