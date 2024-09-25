@@ -13,6 +13,7 @@ You may run the program like how you run your script with MiniScript commandline
 # Note
 1. Don't use the `import` and `importMeta` names to create new variables 'cause they are essentials for the functions of pre-existing plugins.
 2. `KF` map in global indicates that the code is being executed within Kaolin.Flow.
+3. This project uses own MiniScript repository with simple tweaks.
 
 # Features
 ## MiniScript's Commandline Intrinsics
@@ -112,23 +113,36 @@ add = dll.symbols.Add.Instance()
 print add
 ```
 
-## Error Handler (WIP)
-Notice how I put a second import into the `willError` function. Because passing a callback to a plugin and let the plugin execute it will 'cause the function to lose its context of `locals` thus causing `error` to be undefined. Sometimes this error handler will break due to variable issues and such.
+## Error Handler
 ```
 import "error"
+import "machine"
 
 willError = function()
-    import "error"
+    print "Yes!"
+
     error.throw "Hello!"
+
+    print "No!"
 end function
 
 wontError = function(a, b)
     return a + b
 end function
 
+breakingError = function()
+    print "Yes!"
+
+    unknownVariable
+
+    print "No!"
+end function
+
 print "Trying..."
-print error.try(@willError)
 print error.try(@wontError, [1, 3])
+print error.try(@willError)
+print error.try(@breakingError)
+print "Done!"
 ```
 
 ## Bind Outer Variables
