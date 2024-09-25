@@ -3,6 +3,8 @@ using Kaolin.Flow.Builders;
 using Kaolin.Flow.Core;
 using Miniscript;
 using System.Net.Http;
+using System;
+using System.IO;
 
 namespace Kaolin.Flow.Plugins
 {

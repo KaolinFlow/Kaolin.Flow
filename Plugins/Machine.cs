@@ -6,6 +6,9 @@ using Kaolin.Flow.Core;
 using Microsoft.VisualBasic;
 using Miniscript;
 using System.IO;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Kaolin.Flow.Plugins
 {
