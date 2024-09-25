@@ -4,6 +4,7 @@ using Kaolin.Flow.Core;
 using System.Collections.Generic;
 using System.Net.Http;
 using Miniscript;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Kaolin.Flow.Plugins
