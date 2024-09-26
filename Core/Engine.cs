@@ -43,7 +43,11 @@ namespace Kaolin.Flow.Core
             if (lineBreak) Console.WriteLine(s);
             else Console.Write(s);
         }
-
+        public static void Print(string s, bool lineBreak = true)
+        {
+           if (lineBreak) Console.WriteLine(s);
+           else Console.Write(s);
+        }
         public static void ListErrors(Script script)
         {
             if (script.errors == null)
