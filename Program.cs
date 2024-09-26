@@ -15,32 +15,32 @@ class Program(Interpreter interpreter, string path, bool isDebugging) : Engine(i
 			if (args.Length > 1 && args[1] == "--integration")
 			{
 				var file = args.Length < 3 || string.IsNullOrEmpty(args[2]) ? "../../../TestSuite.txt" : args[2];
-				Print("Running test suite.\n");
+				Console.WriteLine("Running test suite.\n");
 				RunTestSuite(Path.GetFullPath(file));
 				return;
 			}
 
-			Print("Miniscript test harness.\n");
+			Console.WriteLine("Miniscript test harness.\n");
 
-			Print("Running unit tests.\n");
+			Console.WriteLine("Running unit tests.\n");
 			UnitTest.Run();
 
-			Print("\n");
+			Console.WriteLine("\n");
 
 			const string quickTestFilePath = "../../../QuickTest.ms";
 
 			if (File.Exists(quickTestFilePath))
 			{
-				Print("Running quick test.\n");
+				Console.WriteLine("Running quick test.\n");
 				var stopwatch = new System.Diagnostics.Stopwatch();
 				stopwatch.Start();
 				RunFile(Path.GetFullPath(quickTestFilePath), true);
 				stopwatch.Stop();
-				Print($"Run time: {stopwatch.Elapsed.TotalSeconds} sec");
+				Console.WriteLine($"Run time: {stopwatch.Elapsed.TotalSeconds} sec");
 			}
 			else
 			{
-				Print("Quick test not found, skipping...\n");
+				Console.WriteLine("Quick test not found, skipping...\n");
 			}
 			return;
 		}
@@ -70,6 +70,6 @@ class Program(Interpreter interpreter, string path, bool isDebugging) : Engine(i
 			engine.REPL(inp);
 		}
 
-		Print("Bye!");
+		Console.WriteLine("Bye!");
 	}
 }
