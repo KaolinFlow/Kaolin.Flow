@@ -254,7 +254,7 @@ namespace Kaolin.Flow.Core
 
             return InvokeValue(new ValFunction(parser.CreateImport()), []);
         }
-        public void Inject()
+        public virtual void Inject()
         {
             interpreter.SetGlobalValue("KF", new MapBuilder().map);
 
