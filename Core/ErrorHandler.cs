@@ -4,11 +4,13 @@ using System;
 
 namespace Kaolin.Flow.Core
 {
-    public class ErrorHandler
+    public class ErrorHandler(Engine engine)
     {
         public delegate bool Callback(string error);
 
         public List<Callback> callbacks = [];
+
+	public Engine engine = engine;
 
         public void On(Callback callback)
         {
@@ -26,7 +28,7 @@ namespace Kaolin.Flow.Core
                 if (callback(e)) return;
             }
 
-            Engine.Print("Unhandled Error:\n\t" + e);
+            engine.Print("Unhandled Error:\n\t" + e);
             Environment.Exit(1);
         }
     }

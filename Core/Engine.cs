@@ -8,7 +8,7 @@ namespace Kaolin.Flow.Core
 {
     public class Engine
     {
-        public readonly ErrorHandler errorHandler = new();
+        public readonly ErrorHandler errorHandler;
         public readonly Interpreter interpreter;
         public readonly bool isDebugging;
         public string path;
@@ -18,6 +18,7 @@ namespace Kaolin.Flow.Core
             this.path = path;
             this.isDebugging = isDebugging;
             this.interpreter = interpreter;
+            errorHandler = new(this);
 
             interpreter.errorOutput = (output, _) =>
             {
@@ -37,7 +38,7 @@ namespace Kaolin.Flow.Core
             if (isDebugging) Console.WriteLine(s);
         }
 
-        public static void Print(string s, bool lineBreak = true)
+        public virtual void Print(string s, bool lineBreak = true)
         {
             if (lineBreak) Console.WriteLine(s);
             else Console.Write(s);

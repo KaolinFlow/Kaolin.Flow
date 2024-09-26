@@ -553,7 +553,7 @@ namespace Kaolin.Flow.Plugins
                         .SetCallback((context, p) =>
                         {
                             string s = context.GetLocalString("prompt");
-                            if (s.Length != 0) Engine.Print(s, false);
+                            if (s.Length != 0) engine.Print(s, false);
                             string v = Console.ReadLine()!;
 
                             return new Intrinsic.Result(v);
