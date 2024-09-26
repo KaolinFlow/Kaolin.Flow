@@ -26,7 +26,7 @@ namespace Kaolin.Flow.Core
                 if (callback(e)) return;
             }
 
-            Console.WriteLine("Unhandled Error:\n\t" + e);
+            Engine.Print("Unhandled Error:\n\t" + e);
             Environment.Exit(1);
         }
     }
