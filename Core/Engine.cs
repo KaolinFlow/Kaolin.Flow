@@ -37,7 +37,7 @@ namespace Kaolin.Flow.Core
             if (isDebugging) Console.WriteLine(s);
         }
 
-        public static virtual void Print(string s, bool lineBreak = true)
+        public static void Print(string s, bool lineBreak = true)
         {
             if (lineBreak) Console.WriteLine(s);
             else Console.Write(s);
