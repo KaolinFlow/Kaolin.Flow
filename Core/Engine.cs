@@ -43,21 +43,16 @@ namespace Kaolin.Flow.Core
             if (lineBreak) Console.WriteLine(s);
             else Console.Write(s);
         }
-        public static void Print(string s, bool lineBreak = true)
-        {
-           if (lineBreak) Console.WriteLine(s);
-           else Console.Write(s);
-        }
         public static void ListErrors(Script script)
         {
             if (script.errors == null)
             {
-                Print("No errors.");
+                Console.WriteLine("No errors.");
                 return;
             }
             foreach (Error err in script.errors)
             {
-                Print(string.Format("{0} on line {1}: {2}",
+                Console.WriteLine(string.Format("{0} on line {1}: {2}",
                     err.type, err.lineNum, err.description));
             }
 
@@ -87,24 +82,24 @@ namespace Kaolin.Flow.Core
             {
                 if (actualOutput[i] != expectedOutput[i])
                 {
-                    Print(string.Format("TEST FAILED AT LINE {0}\n  EXPECTED: {1}\n    ACTUAL: {2}",
+                    Console.WriteLine(string.Format("TEST FAILED AT LINE {0}\n  EXPECTED: {1}\n    ACTUAL: {2}",
                         outputLineNum + i, expectedOutput[i], actualOutput[i]));
                 }
             }
             if (expectedOutput.Count > actualOutput.Count)
             {
-                Print(string.Format("TEST FAILED: MISSING OUTPUT AT LINE {0}", outputLineNum + actualOutput.Count));
+                Console.WriteLine(string.Format("TEST FAILED: MISSING OUTPUT AT LINE {0}", outputLineNum + actualOutput.Count));
                 for (int i = actualOutput.Count; i < expectedOutput.Count; i++)
                 {
-                    Print("  MISSING: " + expectedOutput[i]);
+                    Console.WriteLine("  MISSING: " + expectedOutput[i]);
                 }
             }
             else if (actualOutput.Count > expectedOutput.Count)
             {
-                Print(string.Format("TEST FAILED: EXTRA OUTPUT AT LINE {0}", outputLineNum + expectedOutput.Count));
+                Console.WriteLine(string.Format("TEST FAILED: EXTRA OUTPUT AT LINE {0}", outputLineNum + expectedOutput.Count));
                 for (int i = expectedOutput.Count; i < actualOutput.Count; i++)
                 {
-                    Print("  EXTRA: " + actualOutput[i]);
+                    Console.WriteLine("  EXTRA: " + actualOutput[i]);
                 }
             }
 
@@ -115,7 +110,7 @@ namespace Kaolin.Flow.Core
             StreamReader file = new(path);
             if (file == null)
             {
-                Print("Unable to read: " + path);
+                Console.WriteLine("Unable to read: " + path);
                 return;
             }
 
@@ -157,19 +152,23 @@ namespace Kaolin.Flow.Core
                 lineNum++;
             }
             if (sourceLines != null) Test(sourceLines, testLineNum, expectedOutput!, outputLineNum);
-            Print("\nIntegration tests complete.\n");
+            Console.WriteLine("\nIntegration tests complete.\n");
         }
         public static Engine? RunFile(string path, bool isDebugging = false, bool dumpTAC = false)
         {
             StreamReader file = new(path);
             if (file == null)
             {
-                Print("Unable to read: " + path);
+                Console.WriteLine("Unable to read: " + path);
                 return null;
             }
             Interpreter miniscript = new()
             {
-                standardOutput = Print
+                standardOutput = (content, lineBreak) =>
+                {
+                    if (lineBreak) Console.WriteLine(content);
+                    else Console.Write(content);
+                }
             };
             Parser parser = new()
             {
