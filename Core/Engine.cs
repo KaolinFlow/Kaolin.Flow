@@ -205,7 +205,6 @@ namespace Kaolin.Flow.Core
 
             interpreter.vm.ManuallyPushCall(new FunctionBuilder().SetCallback((context, partialResult) =>
             {
-
                 if (partialResult != null)
                 {
                     isDone = true;
@@ -224,15 +223,18 @@ namespace Kaolin.Flow.Core
         }
         public Value InvokeValue(ValFunction function, Value[] arguments)
         {
-            Value? val = null;
+            Value val = null!;
+            bool isDone = false;
 
             interpreter.vm.ManuallyPushCall(new FunctionBuilder().SetCallback((context, partialResult) =>
             {
-
                 if (partialResult != null)
                 {
                     Value value = context.GetTemp(0);
                     val = value;
+                    isDone = true;
+
+                    if (val == null) val = ValNull.instance;
 
                     return new Intrinsic.Result(value);
                 }
@@ -241,12 +243,12 @@ namespace Kaolin.Flow.Core
 
                 return new Intrinsic.Result(ValNull.instance, false);
             }).Function, null!);
-            while (interpreter.Running() && val == null)
+            while (interpreter.Running() && !isDone)
             {
                 interpreter.vm.Step();
             }
 
-            return val!;
+            return val;
         }
 
         public static ValMap New(ValMap Class)
