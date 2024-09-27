@@ -201,7 +201,26 @@ namespace Kaolin.Flow.Core
 
         public void Invoke(ValFunction function, Value[] arguments)
         {
-            interpreter.vm.ManuallyPushCall(function, null!, [.. arguments]);
+            bool isDone = false;
+
+            interpreter.vm.ManuallyPushCall(new FunctionBuilder().SetCallback((context, partialResult) =>
+            {
+
+                if (partialResult != null)
+                {
+                    isDone = true;
+
+                    return Intrinsic.Result.Null;
+                }
+
+                interpreter.vm.ManuallyPushCall(function, null!, [.. arguments]);
+
+                return new Intrinsic.Result(ValNull.instance, false);
+            }).Function, null!);
+            while (interpreter.Running() && !isDone)
+            {
+                interpreter.vm.Step();
+            }
         }
         public Value InvokeValue(ValFunction function, Value[] arguments)
         {
