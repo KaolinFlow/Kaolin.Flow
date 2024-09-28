@@ -110,7 +110,7 @@ namespace Kaolin.Flow.Plugins
 
         public override void Inject()
         {
-            if (!IsDirectory(UnWrapPath(engine.path))) Directory.SetCurrentDirectory(Directory.GetParent(UnWrapPath(engine.path))!.Name);
+            if (!IsDirectory(UnWrapPath(engine.path))) Directory.SetCurrentDirectory(Directory.GetParent(UnWrapPath(engine.path))!.FullName);
 
             ValMap env = new()
             {
@@ -223,7 +223,7 @@ namespace Kaolin.Flow.Plugins
                                 .AddParam("path", new ValString(""))
                                 .SetCallback((context, p) =>
                                 {
-                                    return new Intrinsic.Result(Directory.GetParent(UnWrapPath(context.GetLocalString("path")))!.Name);
+                                    return new Intrinsic.Result(WrapPath(Directory.GetParent(UnWrapPath(context.GetLocalString("path")))!.FullName));
                                 })
                                 .Function
                         )
